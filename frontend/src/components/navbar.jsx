@@ -1,137 +1,186 @@
-
-
-
 import { Link, useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
-import { FaBars, FaTimes, FaUserCircle } from 'react-icons/fa';
+import { FaBars, FaTimes, FaUserCircle, FaSearch, FaBriefcase, FaBuilding, FaBlog, FaEnvelope } from 'react-icons/fa';
 import logo from '../assets/img/Logo/claro/logotipo.png';
 
-
-
 function Navbar() {
-	const [menuOpen, setMenuOpen] = useState(false);
-	const [isAuth, setIsAuth] = useState(false);
-	const [user, setUser] = useState(null);
-	const navigate = useNavigate();
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [isAuth, setIsAuth] = useState(false);
+  const [user, setUser] = useState(null);
+  const [userDropdownOpen, setUserDropdownOpen] = useState(false);
+  const navigate = useNavigate();
 
-	useEffect(() => {
-		const token = localStorage.getItem("token");
-		const userData = localStorage.getItem("user_data");
-		if (token && userData) {
-			setIsAuth(true);
-			setUser(JSON.parse(userData));
-		} else {
-			setIsAuth(false);
-			setUser(null);
-		}
-	}, []);
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    const userData = localStorage.getItem("user_data");
+    if (token && userData) {
+      setIsAuth(true);
+      setUser(JSON.parse(userData));
+    } else {
+      setIsAuth(false);
+      setUser(null);
+    }
+  }, []);
 
-	const handleLogout = () => {
-		localStorage.removeItem("token");
-		localStorage.removeItem("user_data");
-		setIsAuth(false);
-		setUser(null);
-		navigate("/login");
-	};
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("user_data");
+    setIsAuth(false);
+    setUser(null);
+    navigate("/login");
+  };
 
-	// Opciones para aspirante autenticado
-	const aspiranteLinks = (
-		<>
-			
-			<Link to="/vacantes" className="text-[#5e17eb] font-semibold px-4 py-2 rounded-lg hover:bg-[#f3e8ff]">Vacantes</Link>
-			<Link to="/aspirantes/postulaciones" className="text-[#5e17eb] font-semibold px-4 py-2 rounded-lg hover:bg-[#f3e8ff]">Postulaciones</Link>
-				<Link to="/aspirantes/perfil" className="flex items-center gap-2 text-[#5e17eb] font-semibold px-4 py-2 rounded-lg hover:bg-[#f3e8ff]">
-					<FaUserCircle className="text-2xl" />
-					<span>Mi Perfil</span>
-				</Link>
-			<button onClick={handleLogout} className="ml-2 bg-red-500 text-white font-semibold px-4 py-2 rounded-lg hover:bg-red-600 transition">Cerrar sesión</button>
-			
-		</>
-	);
+  // Enlaces principales para todos los usuarios
+  const mainLinks = (
+    <>
+      <Link to="/" className="text-gray-600 hover:text-[#5e17eb] transition-colors font-medium flex items-center gap-1">
+        <FaSearch /> Inicio
+      </Link>
+      <Link to="/vacantes" className="text-gray-600 hover:text-[#5e17eb] transition-colors font-medium flex items-center gap-1">
+        <FaBriefcase /> Vacantes
+      </Link>
+      <Link to="/empresas" className="text-gray-600 hover:text-[#5e17eb] transition-colors font-medium flex items-center gap-1">
+        <FaBuilding /> Empresas
+      </Link>
+      <Link to="/blog" className="text-gray-600 hover:text-[#5e17eb] transition-colors font-medium flex items-center gap-1">
+        <FaBlog /> Blog
+      </Link>
+      <Link to="/contacto" className="text-gray-600 hover:text-[#5e17eb] transition-colors font-medium flex items-center gap-1">
+        <FaEnvelope /> Contacto
+      </Link>
+    </>
+  );
 
-	// Opciones para no autenticado
-	const guestLinks = (
-		<>
-			<Link to="/login" className="bg-[#5e17eb] text-white font-semibold px-4 py-2 rounded-lg hover:bg-[#A67AFF] transition">Iniciar sesión</Link>
-			<Link to="/register" className="text-[#5e17eb] font-semibold px-4 py-2 rounded-lg hover:underline">Registrarse</Link>
-		</>
-	);
+  // Opciones para aspirante autenticado
+  const aspiranteLinks = (
+    <div className="relative">
+      <button 
+        onClick={() => setUserDropdownOpen(!userDropdownOpen)}
+        className="flex items-center gap-2 text-[#5e17eb] font-medium"
+      >
+        <FaUserCircle className="text-2xl" />
+        <span>Mi Cuenta</span>
+      </button>
+      
+      {userDropdownOpen && (
+        <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg py-2 z-50">
+          <Link 
+            to="/aspirantes/perfil" 
+            className="block px-4 py-2 text-gray-800 hover:bg-[#f3e8ff] hover:text-[#5e17eb]"
+            onClick={() => setUserDropdownOpen(false)}
+          >
+            Mi Perfil
+          </Link>
+          <Link 
+            to="/aspirantes/postulaciones" 
+            className="block px-4 py-2 text-gray-800 hover:bg-[#f3e8ff] hover:text-[#5e17eb]"
+            onClick={() => setUserDropdownOpen(false)}
+          >
+            Mis Postulaciones
+          </Link>
+          <button 
+            onClick={() => { setUserDropdownOpen(false); handleLogout(); }}
+            className="block w-full text-left px-4 py-2 text-red-600 hover:bg-red-50"
+          >
+            Cerrar sesión
+          </button>
+        </div>
+      )}
+    </div>
+  );
 
-	return (
-		<nav className="bg-white px-6 py-3 flex justify-between items-center shadow-sm border-b border-gray-100 relative">
-			<Link to="/aspirante/dashboard" className="flex items-center">
-				<img src={logo} alt="TurboEmpleo Logo" className="w-85 h-auto" />
-			</Link>
+  // Opciones para no autenticado
+  const guestLinks = (
+    <>
+      <Link to="/login" className="text-[#5e17eb] font-medium px-4 py-2 rounded-lg hover:bg-[#f3e8ff] transition-colors">
+        Iniciar sesión
+      </Link>
+      <Link to="/register" className="bg-[#5e17eb] text-white font-medium px-4 py-2 rounded-lg hover:bg-[#A67AFF] transition-colors">
+        Registrarse
+      </Link>
+    </>
+  );
 
-			{/* Menú para pantallas grandes */}
-			<div className="hidden md:flex gap-2 items-center">
-				{isAuth ? aspiranteLinks : guestLinks}
-			</div>
+  return (
+    <nav className="fixed top-0 left-0 w-full bg-white shadow-sm py-3 z-50">
+      <div className="container mx-auto px-4">
+        <div className="flex justify-between items-center">
+          <Link to="/" className="flex items-center">
+            <img src={logo} alt="TurboEmpleo Logo" className="w-72 h-auto" />
+          </Link>
 
-			{/* Botón hamburguesa para móviles */}
-			<button
-				className="md:hidden text-2xl text-[#5e17eb] focus:outline-none"
-				onClick={() => setMenuOpen(!menuOpen)}
-				aria-label={menuOpen ? 'Cerrar menú' : 'Abrir menú'}
-			>
-				{menuOpen ? <FaTimes /> : <FaBars />}
-			</button>
+          {/* Menú para pantallas grandes */}
+          <div className="hidden md:flex items-center space-x-8">
+            {mainLinks}
+            <div className="flex items-center space-x-4">
+              {isAuth ? aspiranteLinks : guestLinks}
+            </div>
+          </div>
 
-			{/* Menú desplegable para móviles */}
-			{menuOpen && (
-				<div className="absolute top-full right-0 w-56 bg-white shadow-lg rounded-b-lg flex flex-col items-end z-50 animate-fade-in md:hidden">
-					{isAuth ? (
-						<>
-							<Link
-								to="/aspirantes/perfil"
-								className="w-full px-4 py-3 text-[#5e17eb] hover:bg-[#f3e8ff] font-semibold border-b border-gray-100 flex items-center gap-2"
-								onClick={() => setMenuOpen(false)}
-							>
-								<FaUserCircle className="text-xl" /> Mi Perfil
-							</Link>
-							<Link
-								to="/vacantes"
-								className="w-full px-4 py-3 text-[#5e17eb] hover:bg-[#f3e8ff] font-semibold border-b border-gray-100"
-								onClick={() => setMenuOpen(false)}
-							>
-								Vacantes
-							</Link>
-							<Link
-								to="/aspirantes/postulaciones"
-								className="w-full px-4 py-3 text-[#5e17eb] hover:bg-[#f3e8ff] font-semibold border-b border-gray-100"
-								onClick={() => setMenuOpen(false)}
-							>
-								Postulaciones
-							</Link>
-							<button
-								onClick={() => { setMenuOpen(false); handleLogout(); }}
-								className="w-full px-4 py-3 text-red-600 hover:bg-red-100 font-semibold text-left"
-							>
-								Cerrar sesión
-							</button>
-						</>
-					) : (
-						<>
-							<Link
-								to="/login"
-								className="w-full px-4 py-3 text-[#5e17eb] hover:bg-[#f3e8ff] font-semibold border-b border-gray-100"
-								onClick={() => setMenuOpen(false)}
-							>
-								Iniciar sesión
-							</Link>
-							<Link
-								to="/register"
-								className="w-full px-4 py-3 text-[#5e17eb] hover:bg-[#f3e8ff] font-semibold"
-								onClick={() => setMenuOpen(false)}
-							>
-								Registrarse
-							</Link>
-						</>
-					)}
-				</div>
-			)}
-		</nav>
-	);
+          {/* Botón hamburguesa para móviles */}
+          <button
+            className="md:hidden text-2xl text-[#5e17eb] focus:outline-none"
+            onClick={() => setMenuOpen(!menuOpen)}
+            aria-label={menuOpen ? 'Cerrar menú' : 'Abrir menú'}
+          >
+            {menuOpen ? <FaTimes /> : <FaBars />}
+          </button>
+        </div>
+
+        {/* Menú desplegable para móviles */}
+        {menuOpen && (
+          <div className="md:hidden mt-4 pb-4">
+            <div className="flex flex-col space-y-4">
+              {mainLinks}
+              <div className="pt-4 border-t border-gray-200">
+                {isAuth ? (
+                  <>
+                    <Link
+                      to="/aspirantes/perfil"
+                      className="flex items-center gap-2 text-[#5e17eb] font-medium py-2"
+                      onClick={() => setMenuOpen(false)}
+                    >
+                      <FaUserCircle className="text-xl" /> Mi Perfil
+                    </Link>
+                    <Link
+                      to="/aspirantes/postulaciones"
+                      className="flex items-center gap-2 text-[#5e17eb] font-medium py-2"
+                      onClick={() => setMenuOpen(false)}
+                    >
+                      <FaBriefcase className="text-xl" /> Mis Postulaciones
+                    </Link>
+                    <button
+                      onClick={() => { setMenuOpen(false); handleLogout(); }}
+                      className="flex items-center gap-2 text-red-600 font-medium py-2 w-full text-left"
+                    >
+                      <FaTimes className="text-xl" /> Cerrar sesión
+                    </button>
+                  </>
+                ) : (
+                  <div className="flex flex-col space-y-3">
+                    <Link
+                      to="/login"
+                      className="text-[#5e17eb] font-medium py-2 text-center"
+                      onClick={() => setMenuOpen(false)}
+                    >
+                      Iniciar sesión
+                    </Link>
+                    <Link
+                      to="/register"
+                      className="bg-[#5e17eb] text-white font-medium py-2 rounded-lg text-center"
+                      onClick={() => setMenuOpen(false)}
+                    >
+                      Registrarse
+                    </Link>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+    </nav>
+  );
 }
 
 export default Navbar;
