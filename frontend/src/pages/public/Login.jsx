@@ -97,7 +97,7 @@ function Login() {
 					</button>
 				</form>
 				<div className="w-full flex flex-col md:flex-row justify-between items-center gap-2 text-sm mt-2">
-					<a href="#" className="text-[#5e17eb] hover:underline">¿Olvidaste tu contraseña?</a>
+									<a href="/recuperar-password" className="text-[#5e17eb] hover:underline">¿Olvidaste tu contraseña?</a>
 					<a href="/register" className="text-[#5e17eb] hover:underline">¿No tienes cuenta? Regístrate</a>
 				</div>
 			</div>

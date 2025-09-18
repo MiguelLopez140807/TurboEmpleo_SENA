@@ -42,6 +42,24 @@ class VacanteSerializer(serializers.ModelSerializer):
 
 
 class UsuarioRegistroSerializer(serializers.Serializer):
+    def validate(self, data):
+        user_nombre = data.get('user_nombre')
+        user_rol = data.get('user_rol', '').lower()
+        asp_correo = data.get('asp_correo')
+        em_email = data.get('em_email')
+        # Validar nombre de usuario único
+        if Usuarios.objects.filter(user_nombre=user_nombre).exists():
+            raise serializers.ValidationError({'user_nombre': 'El nombre de usuario ya está en uso.'})
+        # Validar correo único según el tipo de usuario
+        if user_rol == 'aspirante' and asp_correo:
+            from .models import Aspirante
+            if Aspirante.objects.filter(asp_correo=asp_correo).exists():
+                raise serializers.ValidationError({'asp_correo': 'El correo electrónico ya está registrado.'})
+        if user_rol == 'empresa' and em_email:
+            from .models import Empresa
+            if Empresa.objects.filter(em_email=em_email).exists():
+                raise serializers.ValidationError({'em_email': 'El correo electrónico ya está registrado.'})
+        return data
     user_nombre = serializers.CharField(max_length=100)
     user_contraseña = serializers.CharField(write_only=True)
     user_rol = serializers.CharField(max_length=50) # 'Aspirante' o 'Empresa'
@@ -83,22 +101,39 @@ class UsuarioRegistroSerializer(serializers.Serializer):
     em_logo = serializers.ImageField(required=False)
 
     def create(self, validated_data):
+        from django.core.mail import send_mail
+        from django.conf import settings
+        from django.utils.http import urlsafe_base64_encode
+        from django.utils.encoding import force_bytes
+        from django.contrib.auth.tokens import default_token_generator
         user_rol = validated_data.pop('user_rol')
         user_nombre = validated_data.pop('user_nombre')
         user_contraseña = validated_data.pop('user_contraseña')
         request = self.context.get('request')
         rol_obj, created = Rol.objects.get_or_create(rol_nombre=user_rol)
+
+        # Obtener email según el tipo de usuario
+        email = None
+        if user_rol.lower() == 'aspirante':
+            email = validated_data.get('asp_correo')
+        elif user_rol.lower() == 'empresa':
+            email = validated_data.get('em_email')
+
+        # Usuario inactivo hasta confirmar correo
         usuario = Usuarios.objects.create_user(
             user_nombre=user_nombre,
             password=user_contraseña,
-            user_rol_fk=rol_obj
+            user_rol_fk=rol_obj,
+            is_active=False,
+            email=email
         )
+
         if user_rol.lower() == 'aspirante':
             aspirante_data = {
                 'asp_usuario_fk': usuario,
                 'asp_nombre': validated_data.get('asp_nombre'),
                 'asp_apellido': validated_data.get('asp_apellido'),
-                'asp_correo': validated_data.get('asp_correo'),
+                'asp_correo': email,
                 'asp_telefono': validated_data.get('asp_telefono'),
                 'asp_departamento': validated_data.get('asp_departamento'),
                 'asp_ciudad': validated_data.get('asp_ciudad'),
@@ -126,7 +161,7 @@ class UsuarioRegistroSerializer(serializers.Serializer):
                 'em_usuario_fk': usuario,
                 'em_nombre': validated_data.get('em_nombre'),
                 'em_nit': validated_data.get('em_nit'),
-                'em_email': validated_data.get('em_email'),
+                'em_email': email,
                 'em_telefono': validated_data.get('em_telefono'),
                 'em_departamento': validated_data.get('em_departamento'),
                 'em_ciudad': validated_data.get('em_ciudad'),
@@ -148,4 +183,16 @@ class UsuarioRegistroSerializer(serializers.Serializer):
                 empresa_data['em_curriculum'] = validated_data.get('em_curriculum')
                 empresa_data['em_logo'] = validated_data.get('em_logo')
             Empresa.objects.create(**empresa_data)
+        # Enviar correo de activación
+        if usuario.email:
+            uid = urlsafe_base64_encode(force_bytes(usuario.pk))
+            token = default_token_generator.make_token(usuario)
+            activation_link = f"{settings.FRONTEND_URL}/activar-cuenta/{uid}/{token}/"
+            send_mail(
+                'Activa tu cuenta en TurboEmpleo',
+                f'Hola {user_nombre},\n\nPor favor activa tu cuenta haciendo clic en el siguiente enlace:\n{activation_link}\n\nEste enlace expirará en unas horas.\n',
+                settings.DEFAULT_FROM_EMAIL,
+                [usuario.email],
+                fail_silently=False,
+            )
         return usuario

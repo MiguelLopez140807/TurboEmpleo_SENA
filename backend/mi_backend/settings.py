@@ -1,3 +1,18 @@
+# Configuración de email para producción (Gmail SMTP)
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = 'turboempleo@gmail.com'
+EMAIL_HOST_PASSWORD = 'ntqx vwie gdab vttu'  # Pega aquí tu contraseña de aplicación de 16 caracteres
+DEFAULT_FROM_EMAIL = 'TurboEmpleo <turboempleo@gmail.com>'
+
+# Si quieres volver al modo desarrollo (solo imprime en consola), comenta lo de arriba y descomenta esto:
+# EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+# DEFAULT_FROM_EMAIL = 'noreply@turboempleo.com'
+
+# URL del frontend para el enlace de activación (ajusta si usas otro puerto)
+FRONTEND_URL = 'http://localhost:5173'
 """
 Django settings for backend project.
 

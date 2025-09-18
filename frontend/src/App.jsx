@@ -1,3 +1,6 @@
+import RestablecerPassword from './pages/public/RestablecerPassword';
+import ActivarCuenta from './pages/public/ActivarCuenta';
+import RecuperarPassword from './pages/public/RecuperarPassword';
 import CompletarPerfilAspirante from './pages/aspirantes/CompletarPerfilAspirante';
 import PoliticaPrivacidad from './pages/public/PoliticaPrivacidad';
 import TerminosUso from './pages/public/TerminosUso';
@@ -46,6 +49,10 @@ function App() {
   {/* Redirección inteligente para /dashboard */}
   <Route path="/dashboard" element={<DashboardRedirect />} />
         <Route path="/aspirantes/completar-perfil" element={<CompletarPerfilAspirante />} />
+        {/* Activación de cuenta */}
+    <Route path="/activar-cuenta/:uidb64/:token" element={<Layout><ActivarCuenta /></Layout>} />
+  <Route path="/recuperar-password" element={<Layout><RecuperarPassword /></Layout>} />
+  <Route path="/restablecer-contraseña/:uidb64/:token" element={<Layout><RestablecerPassword /></Layout>} />
       </Routes>
     </BrowserRouter>
   );
