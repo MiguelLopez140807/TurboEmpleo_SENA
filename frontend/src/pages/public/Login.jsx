@@ -17,7 +17,7 @@ function Login() {
       // Intentar primero con nombre de usuario
       let payload = { password };
       if (loginMethod === "username") {
-        payload.username = userNombre;
+        payload.user_nombre = userNombre;
       } else {
         payload.email = userNombre; // Reutilizamos el mismo campo para email
       }
@@ -37,24 +37,33 @@ function Login() {
         const token = data.token || data.access;
         if (token) {
           localStorage.setItem("token", token);
-          
-          // Obtener datos del aspirante tras login exitoso
-          try {
-            const searchParam = loginMethod === "username" ? userNombre : userNombre;
-            const aspRes = await fetch(`http://127.0.0.1:8000/api/aspirantes/?search=${searchParam}`, {
-              headers: { Authorization: `Bearer ${token}` },
-            });
-            const aspData = await aspRes.json();
-            if (aspRes.ok && Array.isArray(aspData) && aspData.length > 0) {
-              localStorage.setItem("user_data", JSON.stringify(aspData[0]));
-              console.log('user_data guardado tras login:', aspData[0]);
+
+          // Detectar si es aspirante o empresa
+          if (data.user && (data.user.asp_nombre || data.user.asp_email || data.user.asp_cedula)) {
+            // Es aspirante
+            localStorage.setItem("user_data", JSON.stringify(data.user));
+          } else if (data.user && (data.user.em_nombre || data.user.em_email || data.user.em_nit)) {
+            // Es empresa
+            localStorage.setItem("user_data", JSON.stringify(data.user));
+          } else {
+            // Intentar buscar datos de aspirante (compatibilidad vieja)
+            try {
+              const searchParam = loginMethod === "username" ? userNombre : userNombre;
+              const aspRes = await fetch(`http://127.0.0.1:8000/api/aspirantes/?search=${searchParam}`, {
+                headers: { Authorization: `Bearer ${token}` },
+              });
+              const aspData = await aspRes.json();
+              if (aspRes.ok && Array.isArray(aspData) && aspData.length > 0) {
+                localStorage.setItem("user_data", JSON.stringify(aspData[0]));
+                console.log('user_data guardado tras login:', aspData[0]);
+              }
+            } catch (e) { 
+              console.log("No se pudieron obtener datos del usuario:", e);
             }
-          } catch (e) { 
-            console.log("No se pudieron obtener datos del usuario:", e);
           }
-          
+
           // Forzar recarga para que Navbar detecte sesión
-          window.location.href = "/dashboard";
+                    window.location.href = "/dashboard";
         } else {
           setError("No se recibió token de autenticación");
         }

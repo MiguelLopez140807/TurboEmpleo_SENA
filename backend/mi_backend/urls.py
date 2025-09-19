@@ -8,7 +8,8 @@ from rest_framework_simplejwt.views import (
 from usuarios.views import (
     UsuarioViewSet, AspiranteViewSet, EmpresaViewSet,
     VacanteViewSet, UsuarioRegistroView, MyTokenObtainPairView,
-    ExperienciaLaboralViewSet, ExperienciaEscolarViewSet
+    ExperienciaLaboralViewSet, ExperienciaEscolarViewSet,
+    PostulacionViewSet
 )
 
 # Crea un enrutador (router)
@@ -22,8 +23,7 @@ router.register(r'empresas', EmpresaViewSet)
 router.register(r'vacantes', VacanteViewSet)
 router.register(r'experiencia_laboral', ExperienciaLaboralViewSet)
 router.register(r'experiencia_escolar', ExperienciaEscolarViewSet)
-
-
+router.register(r'postulaciones', PostulacionViewSet)
 
 urlpatterns = [
     path('admin/', admin.site.urls),

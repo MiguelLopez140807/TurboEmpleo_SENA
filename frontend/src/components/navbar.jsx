@@ -15,7 +15,12 @@ function Navbar() {
     const userData = localStorage.getItem("user_data");
     if (token && userData) {
       setIsAuth(true);
-      setUser(JSON.parse(userData));
+      try {
+        const parsed = JSON.parse(userData);
+        setUser(parsed);
+      } catch (e) {
+        setUser(null);
+      }
     } else {
       setIsAuth(false);
       setUser(null);
@@ -36,9 +41,15 @@ function Navbar() {
       <Link to="/" className="text-gray-600 hover:text-[#5e17eb] transition-colors font-medium flex items-center gap-1">
         <FaSearch /> Inicio
       </Link>
-      <Link to="/vacantes" className="text-gray-600 hover:text-[#5e17eb] transition-colors font-medium flex items-center gap-1">
-        <FaBriefcase /> Vacantes
-      </Link>
+      {user && user.asp_nombre ? (
+        <Link to="/aspirante/vacantes" className="text-gray-600 hover:text-[#5e17eb] transition-colors font-medium flex items-center gap-1">
+          <FaBriefcase /> Vacantes
+        </Link>
+      ) : (
+        <Link to="/vacantes" className="text-gray-600 hover:text-[#5e17eb] transition-colors font-medium flex items-center gap-1">
+          <FaBriefcase /> Vacantes
+        </Link>
+      )}
       <Link to="/empresas" className="text-gray-600 hover:text-[#5e17eb] transition-colors font-medium flex items-center gap-1">
         <FaBuilding /> Empresas
       </Link>
@@ -51,8 +62,17 @@ function Navbar() {
     </>
   );
 
-  // Opciones para aspirante autenticado
-  const aspiranteLinks = (
+  // Opciones para usuario autenticado (aspirante o empresa)
+  // Detectar tipo de usuario por campos únicos
+  const isEmpresa = user => {
+    if (!user) return false;
+    // Si tiene campo em_nombre, es empresa
+    if (user.em_nombre) return true;
+    // Si tiene campo asp_nombre, es aspirante
+    return false;
+  };
+
+  const userLinks = (
     <div className="relative">
       <button 
         onClick={() => setUserDropdownOpen(!userDropdownOpen)}
@@ -61,23 +81,33 @@ function Navbar() {
         <FaUserCircle className="text-2xl" />
         <span>Mi Cuenta</span>
       </button>
-      
       {userDropdownOpen && (
         <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg py-2 z-50">
           <Link 
-            to="/aspirantes/perfil" 
+            to={isEmpresa(user) ? "/empresas/perfil" : "/aspirantes/perfil"}
             className="block px-4 py-2 text-gray-800 hover:bg-[#f3e8ff] hover:text-[#5e17eb]"
             onClick={() => setUserDropdownOpen(false)}
           >
             Mi Perfil
           </Link>
-          <Link 
-            to="/aspirantes/postulaciones" 
-            className="block px-4 py-2 text-gray-800 hover:bg-[#f3e8ff] hover:text-[#5e17eb]"
-            onClick={() => setUserDropdownOpen(false)}
-          >
-            Mis Postulaciones
-          </Link>
+          {!isEmpresa(user) && (
+            <>
+              <Link 
+                to="/aspirante/vacantes" 
+                className="block px-4 py-2 text-gray-800 hover:bg-[#f3e8ff] hover:text-[#5e17eb]"
+                onClick={() => setUserDropdownOpen(false)}
+              >
+                Vacantes
+              </Link>
+              <Link 
+                to="/aspirantes/postulaciones" 
+                className="block px-4 py-2 text-gray-800 hover:bg-[#f3e8ff] hover:text-[#5e17eb]"
+                onClick={() => setUserDropdownOpen(false)}
+              >
+                Mis Postulaciones
+              </Link>
+            </>
+          )}
           <button 
             onClick={() => { setUserDropdownOpen(false); handleLogout(); }}
             className="block w-full text-left px-4 py-2 text-red-600 hover:bg-red-50"
@@ -113,7 +143,7 @@ function Navbar() {
           <div className="hidden md:flex items-center space-x-8">
             {mainLinks}
             <div className="flex items-center space-x-4">
-              {isAuth ? aspiranteLinks : guestLinks}
+              {isAuth ? userLinks : guestLinks}
             </div>
           </div>
 
@@ -136,19 +166,21 @@ function Navbar() {
                 {isAuth ? (
                   <>
                     <Link
-                      to="/aspirantes/perfil"
+                      to={isEmpresa(user) ? "/empresas/perfil" : "/aspirantes/perfil"}
                       className="flex items-center gap-2 text-[#5e17eb] font-medium py-2"
                       onClick={() => setMenuOpen(false)}
                     >
                       <FaUserCircle className="text-xl" /> Mi Perfil
                     </Link>
-                    <Link
-                      to="/aspirantes/postulaciones"
-                      className="flex items-center gap-2 text-[#5e17eb] font-medium py-2"
-                      onClick={() => setMenuOpen(false)}
-                    >
-                      <FaBriefcase className="text-xl" /> Mis Postulaciones
-                    </Link>
+                    {!isEmpresa(user) && (
+                      <Link
+                        to="/aspirantes/postulaciones"
+                        className="flex items-center gap-2 text-[#5e17eb] font-medium py-2"
+                        onClick={() => setMenuOpen(false)}
+                      >
+                        <FaBriefcase className="text-xl" /> Mis Postulaciones
+                      </Link>
+                    )}
                     <button
                       onClick={() => { setMenuOpen(false); handleLogout(); }}
                       className="flex items-center gap-2 text-red-600 font-medium py-2 w-full text-left"

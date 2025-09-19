@@ -1,5 +1,44 @@
+
 from rest_framework import serializers
-from .models import ExperienciaLaboral, ExperienciaEscolar
+from .models import Empresa, Vacante, Postulacion, ExperienciaLaboral, ExperienciaEscolar, Rol, Usuarios, Aspirante
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+
+# Serializador anidado para Empresa
+class EmpresaSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Empresa
+        fields = '__all__'
+
+# Serializador anidado para Vacante
+class VacanteSerializer(serializers.ModelSerializer):
+    va_idEmpresa_fk = EmpresaSerializer()
+    class Meta:
+        model = Vacante
+        fields = '__all__'
+
+
+# Serializer para Aspirante (mover arriba para evitar error de referencia)
+class AspiranteSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Aspirante
+        fields = '__all__'
+
+# Serializer para Postulacion
+
+# Serializer para escritura (POST/PUT)
+class PostulacionWriteSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Postulacion
+        fields = '__all__'
+
+# Serializer para lectura (GET), con datos anidados
+class PostulacionSerializer(serializers.ModelSerializer):
+    pos_vacante_fk = VacanteSerializer(read_only=True)
+    pos_aspirante_fk = AspiranteSerializer(read_only=True)
+    class Meta:
+        model = Postulacion
+        fields = '__all__'
+
 # Serializer para ExperienciaLaboral
 class ExperienciaLaboralSerializer(serializers.ModelSerializer):
     class Meta:
@@ -11,12 +50,62 @@ class ExperienciaEscolarSerializer(serializers.ModelSerializer):
     class Meta:
         model = ExperienciaEscolar
         fields = '__all__'
-from rest_framework import serializers
-from .models import Rol, Usuarios, Aspirante, Empresa, Vacante
-from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
 class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
     username_field = 'user_nombre'
+
+    def validate(self, attrs):
+        from django.utils import timezone
+        from .models import Usuarios, Aspirante, Empresa
+        from .serializers import AspiranteSerializer, EmpresaSerializer
+
+        user_nombre = attrs.get('user_nombre')
+        password = attrs.get('password')
+        try:
+            user = Usuarios.objects.get(user_nombre=user_nombre)
+        except Usuarios.DoesNotExist:
+            return super().validate(attrs)
+
+        # Verificar si está bloqueado
+        if user.login_blocked_until and user.login_blocked_until > timezone.now():
+            raise serializers.ValidationError({'detail': f'Usuario bloqueado temporalmente. Intenta de nuevo después de {user.login_blocked_until.strftime("%H:%M:%S")}'})
+
+        # Validar credenciales
+        try:
+            data = super().validate(attrs)
+        except serializers.ValidationError:
+            user.failed_login_attempts += 1
+            user.last_failed_login = timezone.now()
+            if user.failed_login_attempts >= 5:
+                from datetime import timedelta
+                user.login_blocked_until = timezone.now() + timedelta(minutes=5)
+                user.failed_login_attempts = 0
+            user.save()
+            raise
+
+        # Si login exitoso, resetear contador
+        user.failed_login_attempts = 0
+        user.login_blocked_until = None
+        user.save()
+
+        # Buscar datos de aspirante o empresa
+        user_data = None
+        try:
+            # Buscar aspirante por asp_usuario_fk
+            from .models import Aspirante, Empresa
+            from .serializers import AspiranteSerializer, EmpresaSerializer
+            aspirante = Aspirante.objects.filter(asp_usuario_fk=user).first()
+            if aspirante:
+                user_data = AspiranteSerializer(aspirante).data
+            else:
+                empresa = Empresa.objects.filter(em_usuario_fk=user).first()
+                if empresa:
+                    user_data = EmpresaSerializer(empresa).data
+        except Exception:
+            user_data = None
+
+        data['user'] = user_data
+        return data
 
 class UsuarioSerializer(serializers.ModelSerializer):
     class Meta:

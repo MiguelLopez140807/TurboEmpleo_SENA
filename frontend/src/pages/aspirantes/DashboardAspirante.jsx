@@ -37,7 +37,7 @@ const DashboardAspirante = () => {
               <span className="text-[#5e17eb] text-4xl mb-2">💼</span>
               <h2 className="font-semibold text-lg mb-1">Vacantes</h2>
               <p className="text-gray-500 text-sm text-center mb-2">Explora y postúlate a nuevas oportunidades laborales.</p>
-              <a href="/vacantes" className="mt-2 px-4 py-2 bg-[#5e17eb] text-white rounded-lg font-semibold hover:bg-[#A67AFF] transition">Ver vacantes</a>
+              <a href="/aspirante/vacantes" className="mt-2 px-4 py-2 bg-[#5e17eb] text-white rounded-lg font-semibold hover:bg-[#A67AFF] transition">Ver vacantes</a>
             </div>
             {/* Widget: Mis postulaciones */}
             <div className="bg-[#ede9fe] rounded-xl p-6 flex flex-col items-center shadow hover:shadow-lg transition">

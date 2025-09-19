@@ -84,6 +84,10 @@ class Usuarios(AbstractBaseUser, PermissionsMixin):
     email = models.EmailField(unique=True, null=True, blank=True) # <-- Nuevo campo
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
+    # Campos para bloqueo temporal de login
+    failed_login_attempts = models.IntegerField(default=0)
+    last_failed_login = models.DateTimeField(null=True, blank=True)
+    login_blocked_until = models.DateTimeField(null=True, blank=True)
     
     USERNAME_FIELD = 'user_nombre'
     REQUIRED_FIELDS = []
@@ -106,6 +110,7 @@ class Usuarios(AbstractBaseUser, PermissionsMixin):
 
     def __str__(self):
         return self.user_nombre
+
     
 
 # ... (código anterior)
@@ -116,8 +121,13 @@ class Vacante(models.Model):
     va_salario = models.DecimalField(max_digits=10, decimal_places=2)
     va_ubicacion = models.CharField(max_length=100)
     va_descripcion = models.TextField()
+    va_tipo_empleo = models.CharField(max_length=50, blank=True, null=True)
+    va_responsabilidades = models.TextField(blank=True, null=True)
+    va_beneficios = models.TextField(blank=True, null=True)
+    va_habilidades = models.TextField(blank=True, null=True)
     va_estado = models.CharField(max_length=20)
     va_idEmpresa_fk = models.ForeignKey(Empresa, on_delete=models.CASCADE)
+    va_fecha_publicacion = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return self.va_titulo

@@ -105,7 +105,7 @@ DATABASES = {
         'USER': 'root',    # Tu usuario de MySQL
         'PASSWORD': 'turboempleo10',   # Tu contraseña de MySQL
         'HOST': 'localhost',
-    'PORT': '3307',
+    'PORT': '3306',
     }
 }
 

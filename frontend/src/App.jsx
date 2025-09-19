@@ -1,3 +1,7 @@
+import VacantesDisponibles from './pages/aspirantes/VacantesDisponibles';
+import PostulacionesAspirante from './pages/aspirantes/PostulacionesAspirante';
+import DetallePostulacion from './pages/aspirantes/DetallePostulacion';
+import DetalleVacante from './pages/aspirantes/DetalleVacante';
 import RestablecerPassword from './pages/public/RestablecerPassword';
 import ActivarCuenta from './pages/public/ActivarCuenta';
 import RecuperarPassword from './pages/public/RecuperarPassword';
@@ -24,6 +28,13 @@ import DashboardAspirante from './pages/aspirantes/DashboardAspirante';
 import PerfilAspirante from './pages/aspirantes/PerfilAspirante';
 import Empresas from './pages/empresas/Empresas';
 import DashboardRedirect from './pages/DashboardRedirect';
+
+
+import DashboardEmpresa from './pages/empresas/DashboardEmpresa';
+import PerfilEmpresa from './pages/empresas/PerfilEmpresa';
+import VacantesEmpresa from './pages/empresas/VacantesEmpresa';
+import EditarVacanteEmpresa from './pages/empresas/EditarVacanteEmpresa';
+import PostulacionesRecibidasEmpresa from './pages/empresas/PostulacionesRecibidasEmpresa';
 
 function App() {
   return (
@@ -53,6 +64,15 @@ function App() {
     <Route path="/activar-cuenta/:uidb64/:token" element={<Layout><ActivarCuenta /></Layout>} />
   <Route path="/recuperar-password" element={<Layout><RecuperarPassword /></Layout>} />
   <Route path="/restablecer-contraseña/:uidb64/:token" element={<Layout><RestablecerPassword /></Layout>} />
+  <Route path="/empresas/dashboard" element={<DashboardEmpresa />} />
+  <Route path="/empresas/perfil" element={<PerfilEmpresa />} />
+  <Route path="/empresas/vacantes" element={<VacantesEmpresa />} />
+  <Route path="/empresas/vacantes/editar/:id" element={<EditarVacanteEmpresa />} />
+  <Route path="/empresas/postulaciones" element={<PostulacionesRecibidasEmpresa />} />
+  <Route path="/aspirante/vacantes" element={<VacantesDisponibles />} />
+  <Route path="/aspirante/vacantes/:id" element={<DetalleVacante />} />
+  <Route path="/aspirantes/postulaciones" element={<PostulacionesAspirante />} />
+  <Route path="/aspirantes/postulaciones/:id" element={<DetallePostulacion />} />
       </Routes>
     </BrowserRouter>
   );

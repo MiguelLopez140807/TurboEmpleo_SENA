@@ -1,3 +1,15 @@
+from .models import Postulacion
+from .serializers import PostulacionSerializer
+# ViewSet para Postulacion
+from rest_framework import viewsets
+class PostulacionViewSet(viewsets.ModelViewSet):
+    queryset = Postulacion.objects.all()
+
+    def get_serializer_class(self):
+        if self.action in ['create', 'update', 'partial_update']:
+            from .serializers import PostulacionWriteSerializer
+            return PostulacionWriteSerializer
+        return PostulacionSerializer
 from .models import ExperienciaLaboral, ExperienciaEscolar
 from rest_framework import viewsets
 from rest_framework import status
