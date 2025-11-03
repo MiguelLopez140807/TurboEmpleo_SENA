@@ -51,8 +51,59 @@ function PerfilAspirante() {
     }, [token, aspiranteId]);
 
     const handleChange = (e) => {
-    const { name, value } = e.target;
-    setForm((f) => ({ ...f, [name]: value }));
+        const { name, value, files } = e.target;
+        
+        // Validar archivos
+        if (name === "asp_curriculum" && files && files[0]) {
+            const file = files[0];
+            const maxSize = 5 * 1024 * 1024; // 5MB
+            
+            if (file.type !== "application/pdf") {
+                setError("El currículum debe ser un archivo PDF");
+                e.target.value = "";
+                return;
+            }
+            
+            if (file.size > maxSize) {
+                setError("El currículum no debe superar los 5MB");
+                e.target.value = "";
+                return;
+            }
+            
+            setCurriculumFile(file);
+            setError("");
+            return;
+        }
+        
+        if (name === "asp_foto" && files && files[0]) {
+            const file = files[0];
+            const maxSize = 2 * 1024 * 1024; // 2MB
+            const allowedTypes = ["image/jpeg", "image/png", "image/jpg"];
+            
+            if (!allowedTypes.includes(file.type)) {
+                setError("La foto debe ser JPG, JPEG o PNG");
+                e.target.value = "";
+                return;
+            }
+            
+            if (file.size > maxSize) {
+                setError("La foto no debe superar los 2MB");
+                e.target.value = "";
+                return;
+            }
+            
+            setFotoFile(file);
+            // Generar preview
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                setFotoPreview(reader.result);
+            };
+            reader.readAsDataURL(file);
+            setError("");
+            return;
+        }
+        
+        setForm((f) => ({ ...f, [name]: value }));
     };
 
     const handleSubmit = async (e) => {
@@ -122,9 +173,9 @@ function PerfilAspirante() {
     return (
         <div className="min-h-screen flex flex-col bg-[#f6f4fa]">
             <Navbar />
-            <main className="flex-1 flex flex-row justify-center py-10 px-4">
+            <main className="flex-1 flex flex-row justify-center pt-24 pb-10 px-4">
                 {/* Sidebar */}
-                <aside className="w-64 bg-white rounded-2xl shadow-xl p-6 mr-8 h-fit self-start border-t-4 border-[#5e17eb] flex flex-col gap-4">
+                <aside className="w-64 bg-white rounded-2xl shadow-xl p-6 mr-8 h-fit sticky top-24 border-t-4 border-[#5e17eb] flex flex-col gap-4">
                     <button
                         className={`text-left px-4 py-3 rounded-lg font-semibold transition text-lg ${sidebarSection === "datos" ? "bg-[#5e17eb] text-white" : "bg-gray-100 text-[#5e17eb] hover:bg-[#A67AFF] hover:text-white"}`}
                         onClick={() => setSidebarSection("datos")}
@@ -244,13 +295,57 @@ function PerfilAspirante() {
                                         </div>
                                     </div>
                                 </div>
-                                <button type="submit" className="w-full bg-[#5e17eb] text-white font-bold py-3 rounded-lg shadow hover:bg-[#A67AFF] transition text-lg mt-6">Guardar cambios</button>
+                                {/* Botones de acción */}
+                                <div className="flex flex-col md:flex-row gap-4 mt-6">
+                                    <button 
+                                        type="button" 
+                                        onClick={() => window.history.back()}
+                                        className="flex-1 bg-transparent border-2 border-red-500 text-red-500 font-bold py-3 rounded-lg shadow hover:bg-red-500 hover:text-white transition text-lg"
+                                    >
+                                        Cancelar
+                                    </button>
+                                    <button 
+                                        type="button" 
+                                        onClick={() => {
+                                            // Recargar los datos originales
+                                            if (!token || !aspiranteId) return;
+                                            fetch(`http://127.0.0.1:8000/api/aspirantes/${aspiranteId}/`, {
+                                                headers: { Authorization: `Bearer ${token}` },
+                                            })
+                                                .then((res) => res.json())
+                                                .then((data) => {
+                                                    setForm(data);
+                                                    setCurriculumFile(null);
+                                                    setFotoFile(null);
+                                                    setFotoPreview(null);
+                                                    if (fileInputRef.current) fileInputRef.current.value = "";
+                                                    if (fotoInputRef.current) fotoInputRef.current.value = "";
+                                                    setSuccess("Datos restablecidos");
+                                                })
+                                                .catch(() => setError("Error al restablecer los datos"));
+                                        }}
+                                        className="flex-1 bg-transparent border-2 border-gray-400 text-gray-600 font-bold py-3 rounded-lg shadow hover:bg-gray-400 hover:text-white transition text-lg"
+                                    >
+                                        Limpiar datos
+                                    </button>
+                                    <button 
+                                        type="submit" 
+                                        className="flex-1 bg-[#5e17eb] text-white font-bold py-3 rounded-lg shadow hover:bg-[#A67AFF] transition text-lg"
+                                    >
+                                        Guardar cambios
+                                    </button>
+                                </div>
                             </form>
                         </>
                     )}
                     {sidebarSection === "config" && (
                         <div className="w-full bg-white rounded-2xl shadow-xl p-8 border-t-4 border-[#5e17eb] flex flex-col gap-8 max-w-lg mx-auto">
                             <h3 className="text-xl font-bold text-[#5e17eb] mb-2">Configuración de la cuenta</h3>
+                            
+                            {/* Mensajes de feedback */}
+                            {error && <div className="w-full bg-red-100 text-red-700 px-4 py-2 rounded mb-2 text-center border border-red-300">{error}</div>}
+                            {success && <div className="w-full bg-green-100 text-green-700 px-4 py-2 rounded mb-2 text-center border border-green-300">{success}</div>}
+                            
                             {/* Cambiar contraseña */}
                             <form className="flex flex-col gap-4" onSubmit={async (e) => {
                                 e.preventDefault();
@@ -271,23 +366,28 @@ function PerfilAspirante() {
                                     if (res.ok) {
                                         setSuccess("¡Contraseña cambiada correctamente!");
                                         e.target.reset();
+                                        // Limpiar el mensaje después de 5 segundos
+                                        setTimeout(() => setSuccess(""), 5000);
                                     } else {
                                         setError(data.detail || "Error al cambiar la contraseña");
                                     }
                                 } catch (err) {
-                                    setError("Error de conexión");
+                                    setError("Error de conexión al cambiar la contraseña.");
                                 }
                             }}>
-                                <label className="font-semibold text-gray-700">Cambiar contraseña</label>
-                                <input name="current_password" type="password" placeholder="Contraseña actual" className="px-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#5e17eb]" required />
-                                <input name="new_password" type="password" placeholder="Nueva contraseña" className="px-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#5e17eb]" required minLength={6} />
-                                <button type="submit" className="bg-[#5e17eb] text-white font-bold py-2 rounded-lg shadow hover:bg-[#A67AFF] transition">Guardar nueva contraseña</button>
+                                <label className="block text-sm font-semibold text-gray-700 mb-1">Contraseña actual</label>
+                                <input name="current_password" type="password" className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#5e17eb]" required />
+                                <label className="block text-sm font-semibold text-gray-700 mb-1">Nueva contraseña</label>
+                                <input name="new_password" type="password" className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#5e17eb]" required minLength={6} />
+                                <button type="submit" className="w-full bg-[#5e17eb] text-white font-bold py-2 rounded-lg hover:bg-[#A67AFF] transition mt-2">Cambiar contraseña</button>
                             </form>
+                            
                             {/* Eliminar cuenta */}
-                            <div className="flex flex-col gap-2 mt-8">
-                                <label className="font-semibold text-gray-700">Eliminar cuenta</label>
+                            <div className="mt-8">
+                                <h4 className="text-lg font-semibold text-red-600 mb-2">Eliminar cuenta</h4>
+                                <p className="text-gray-600 mb-4">Esta acción es irreversible. Todos los datos del aspirante serán eliminados.</p>
                                 <button
-                                    className="bg-red-600 text-white font-bold py-2 rounded-lg shadow hover:bg-red-800 transition"
+                                    className="w-full bg-transparent border-2 border-red-500 text-red-500 font-bold py-2 rounded-lg shadow hover:bg-red-500 hover:text-white transition"
                                     onClick={async () => {
                                         if (!window.confirm("¿Estás seguro de que deseas eliminar tu cuenta? Esta acción no se puede deshacer.")) return;
                                         setError("");
@@ -299,25 +399,22 @@ function PerfilAspirante() {
                                                     Authorization: `Bearer ${token}`,
                                                 },
                                             });
-                                            if (res.status === 204) {
+                                            if (res.ok) {
                                                 setSuccess("Cuenta eliminada correctamente. Cerrando sesión...");
                                                 setTimeout(() => {
-                                                    localStorage.removeItem("token");
-                                                    localStorage.removeItem("user_data");
+                                                    localStorage.clear();
                                                     window.location.href = "/";
                                                 }, 2000);
                                             } else {
-                                                const data = await res.json();
-                                                setError(data.detail || "Error al eliminar la cuenta");
+                                                setError("Error al eliminar la cuenta.");
                                             }
                                         } catch (err) {
-                                            setError("Error de conexión");
+                                            setError("Error de conexión al eliminar la cuenta.");
                                         }
                                     }}
                                 >
                                     Eliminar mi cuenta
                                 </button>
-                                <span className="text-sm text-gray-500">Esta acción es irreversible.</span>
                             </div>
                         </div>
                     )}

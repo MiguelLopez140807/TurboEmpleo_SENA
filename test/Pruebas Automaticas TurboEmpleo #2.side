@@ -1,0 +1,153 @@
+{
+  "id": "c345a6cd-cfca-4de3-94e5-8daac824c1c4",
+  "version": "2.0",
+  "name": "Pruebas Automaticas TurboEmpleo # 2",
+  "url": "http://localhost:5173",
+  "tests": [{
+    "id": "6151642a-f28b-4345-b2d3-5d8c783b2e7a",
+    "name": "Prueba de Actualizacion de datos personales Aspirante",
+    "commands": [{
+      "id": "2855c80e-31f9-45c4-905a-ee7d43834a66",
+      "comment": "",
+      "command": "open",
+      "target": "/",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "2fc8c2ef-3675-401d-a13e-cf7a0879d712",
+      "comment": "",
+      "command": "setWindowSize",
+      "target": "697x728",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "8331d7e2-f0fa-4c0b-a04e-bd065f0bd623",
+      "comment": "",
+      "command": "click",
+      "target": "linkText=Iniciar sesión",
+      "targets": [
+        ["linkText=Iniciar sesión", "linkText"],
+        ["css=.hover\\3A bg-\\[\\#f3e8ff\\]", "css:finder"],
+        ["xpath=//a[contains(text(),'Iniciar sesión')]", "xpath:link"],
+        ["xpath=//div[@id='root']/div/nav/div/div/div/div/a", "xpath:idRelative"],
+        ["xpath=//a[contains(@href, '/login')]", "xpath:href"],
+        ["xpath=//div/div/div/div/a", "xpath:position"],
+        ["xpath=//a[contains(.,'Iniciar sesión')]", "xpath:innerText"]
+      ],
+      "value": ""
+    }, {
+      "id": "101b0680-e65d-42b1-88c2-c44f13053d7e",
+      "comment": "",
+      "command": "type",
+      "target": "id=userNombre",
+      "targets": [
+        ["id=userNombre", "id"],
+        ["css=#userNombre", "css:finder"],
+        ["xpath=//input[@id='userNombre']", "xpath:attributes"],
+        ["xpath=//div[@id='root']/div/div[2]/div/form/div/div/input", "xpath:idRelative"],
+        ["xpath=//input", "xpath:position"]
+      ],
+      "value": "James10"
+    }, {
+      "id": "8265770d-3116-4d81-863a-b20bd0089d51",
+      "comment": "",
+      "command": "type",
+      "target": "id=password",
+      "targets": [
+        ["id=password", "id"],
+        ["css=#password", "css:finder"],
+        ["xpath=//input[@id='password']", "xpath:attributes"],
+        ["xpath=//div[@id='root']/div/div[2]/div/form/div[2]/div/input", "xpath:idRelative"],
+        ["xpath=//div[2]/div/input", "xpath:position"]
+      ],
+      "value": "James1010"
+    }, {
+      "id": "98ecb384-3734-41fc-b9f2-0cbfe446c2d2",
+      "comment": "",
+      "command": "click",
+      "target": "css=.w-full > span",
+      "targets": [
+        ["css=.w-full > span", "css:finder"],
+        ["xpath=//div[@id='root']/div/div[2]/div/form/button[2]/span", "xpath:idRelative"],
+        ["xpath=//button[2]/span", "xpath:position"],
+        ["xpath=//span[contains(.,'Ingresar')]", "xpath:innerText"]
+      ],
+      "value": ""
+    }, {
+      "id": "2b0dd377-5b2b-4e1d-8b7a-e3d5c00753b0",
+      "comment": "",
+      "command": "click",
+      "target": "linkText=Ver perfil",
+      "targets": [
+        ["linkText=Ver perfil", "linkText"],
+        ["css=.bg-\\[\\#f3e8ff\\] > .mt-2", "css:finder"],
+        ["xpath=//a[contains(text(),'Ver perfil')]", "xpath:link"],
+        ["xpath=//div[@id='root']/div/main/div/div/div/a", "xpath:idRelative"],
+        ["xpath=//a[contains(@href, '/aspirantes/perfil')]", "xpath:href"],
+        ["xpath=//main/div/div/div/a", "xpath:position"],
+        ["xpath=//a[contains(.,'Ver perfil')]", "xpath:innerText"]
+      ],
+      "value": ""
+    }, {
+      "id": "044e2a41-463a-4fd0-9ddb-68d284299567",
+      "comment": "",
+      "command": "click",
+      "target": "name=asp_nombre",
+      "targets": [
+        ["name=asp_nombre", "name"],
+        ["css=.flex:nth-child(1) > div:nth-child(1) > .w-full", "css:finder"],
+        ["xpath=//input[@name='asp_nombre']", "xpath:attributes"],
+        ["xpath=//div[@id='root']/div/main/section/form/div[3]/div/div/input", "xpath:idRelative"],
+        ["xpath=//div/div/input", "xpath:position"]
+      ],
+      "value": ""
+    }, {
+      "id": "b75e8db3-f88c-476b-8c23-c2845ad4aa04",
+      "comment": "",
+      "command": "type",
+      "target": "name=asp_nombre",
+      "targets": [
+        ["name=asp_nombre", "name"],
+        ["css=.flex:nth-child(1) > div:nth-child(1) > .w-full", "css:finder"],
+        ["xpath=//input[@name='asp_nombre']", "xpath:attributes"],
+        ["xpath=//div[@id='root']/div/main/section/form/div[3]/div/div/input", "xpath:idRelative"],
+        ["xpath=//div/div/input", "xpath:position"]
+      ],
+      "value": "Jamesito"
+    }, {
+      "id": "1832403f-b9c6-4fdf-af98-a89d872cd872",
+      "comment": "",
+      "command": "click",
+      "target": "css=.mt-6",
+      "targets": [
+        ["css=.mt-6", "css:finder"],
+        ["xpath=//button[@type='submit']", "xpath:attributes"],
+        ["xpath=//div[@id='root']/div/main/section/form/button", "xpath:idRelative"],
+        ["xpath=//form/button", "xpath:position"],
+        ["xpath=//button[contains(.,'Guardar cambios')]", "xpath:innerText"]
+      ],
+      "value": ""
+    }, {
+      "id": "297c653d-0312-4462-92c0-72d8b7a4814e",
+      "comment": "",
+      "command": "assertText",
+      "target": "css=.bg-green-100",
+      "targets": [
+        ["css=.bg-green-100", "css:finder"],
+        ["xpath=//div[@id='root']/div/main/section/div[2]", "xpath:idRelative"],
+        ["xpath=//section/div[2]", "xpath:position"]
+      ],
+      "value": "¡Perfil actualizado correctamente!"
+    }]
+  }],
+  "suites": [{
+    "id": "0906269e-5abc-4ad7-a635-00cade995adf",
+    "name": "Default Suite",
+    "persistSession": false,
+    "parallel": false,
+    "timeout": 300,
+    "tests": ["6151642a-f28b-4345-b2d3-5d8c783b2e7a"]
+  }],
+  "urls": ["http://localhost:5173/"],
+  "plugins": []
+}

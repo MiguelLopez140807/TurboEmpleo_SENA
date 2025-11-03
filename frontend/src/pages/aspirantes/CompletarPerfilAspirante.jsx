@@ -1,8 +1,11 @@
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import Navbar from "../../components/navbar";
 import Footer from "../../components/footer";
+import { FaTimes, FaCheckCircle } from 'react-icons/fa';
 
 function CompletarPerfilAspirante() {
+    const navigate = useNavigate();
     const token = localStorage.getItem("token");
     const userData = JSON.parse(localStorage.getItem("user_data") || "null");
     const aspiranteId = userData ? userData.id : null;
@@ -79,6 +82,12 @@ function CompletarPerfilAspirante() {
     e.preventDefault();
     setSuccess("");
     setError("");
+    
+    if (!token || !aspiranteId) {
+        setError("No se encontró sesión activa. Por favor, inicia sesión nuevamente.");
+        return;
+    }
+    
     try {
       // Guardar experiencia laboral
         for (const exp of expLaboral) {
@@ -86,7 +95,8 @@ function CompletarPerfilAspirante() {
         const url = exp.id
             ? `http://127.0.0.1:8000/api/experiencia_laboral/${exp.id}/`
             : `http://127.0.0.1:8000/api/experiencia_laboral/`;
-        await fetch(url, {
+        
+        const response = await fetch(url, {
             method,
             headers: {
             "Content-Type": "application/json",
@@ -94,14 +104,22 @@ function CompletarPerfilAspirante() {
             },
             body: JSON.stringify({ ...exp, exla_aspirante_fk: aspiranteId }),
         });
+        
+        if (!response.ok) {
+            const errorData = await response.json();
+            console.error('Error al guardar experiencia laboral:', errorData);
+            throw new Error(errorData.detail || 'Error al guardar experiencia laboral');
         }
+        }
+        
       // Guardar experiencia escolar
         for (const exp of expEscolar) {
         const method = exp.id ? "PUT" : "POST";
         const url = exp.id
             ? `http://127.0.0.1:8000/api/experiencia_escolar/${exp.id}/`
             : `http://127.0.0.1:8000/api/experiencia_escolar/`;
-        await fetch(url, {
+        
+        const response = await fetch(url, {
             method,
             headers: {
             "Content-Type": "application/json",
@@ -109,17 +127,51 @@ function CompletarPerfilAspirante() {
             },
             body: JSON.stringify({ ...exp, exes_aspirante_fk: aspiranteId }),
         });
+        
+        if (!response.ok) {
+            const errorData = await response.json();
+            console.error('Error al guardar experiencia escolar:', errorData);
+            throw new Error(errorData.detail || 'Error al guardar experiencia escolar');
         }
+        }
+        
         setSuccess("¡Datos guardados correctamente!");
+        
+        // Recargar los datos desde el servidor para actualizar los IDs
+        if (!token || !aspiranteId) return;
+        
+        // Cargar experiencia laboral actualizada
+        const labRes = await fetch(`http://127.0.0.1:8000/api/experiencia_laboral/?exla_aspirante_fk=${aspiranteId}`, {
+            headers: { Authorization: `Bearer ${token}` },
+        });
+        if (labRes.ok) {
+            const labData = await labRes.json();
+            if (Array.isArray(labData) && labData.length > 0) {
+                setExpLaboral(labData);
+            }
+        }
+        
+        // Cargar experiencia escolar actualizada
+        const escRes = await fetch(`http://127.0.0.1:8000/api/experiencia_escolar/?exes_aspirante_fk=${aspiranteId}`, {
+            headers: { Authorization: `Bearer ${token}` },
+        });
+        if (escRes.ok) {
+            const escData = await escRes.json();
+            if (Array.isArray(escData) && escData.length > 0) {
+                setExpEscolar(escData);
+            }
+        }
+        
     } catch (err) {
-        setError("Error al guardar los datos");
+        console.error('Error en handleSubmit:', err);
+        setError(err.message || "Error al guardar los datos. Verifica tu conexión e intenta nuevamente.");
     }
     };
 
     return (
     <div className="min-h-screen flex flex-col bg-[#f6f4fa]">
         <Navbar />
-        <main className="flex-1 flex flex-col items-center justify-center py-10 px-4">
+        <main className="flex-1 flex flex-col items-center justify-center pt-24 pb-10 px-4">
         <h2 className="text-2xl font-bold text-[#5e17eb] mb-4 text-center">Completa tu perfil</h2>
         <p className="text-gray-600 text-center mb-8">Agrega tu experiencia laboral y escolar para mejorar tus oportunidades.</p>
         {success && <div className="w-full max-w-3xl bg-green-100 text-green-700 px-4 py-2 rounded mb-2 text-center border border-green-300">{success}</div>}
@@ -178,7 +230,22 @@ function CompletarPerfilAspirante() {
                 </div>
             ))}
             </div>
-            <button type="submit" className="w-full bg-[#5e17eb] text-white font-bold py-3 rounded-lg shadow hover:bg-[#A67AFF] transition text-lg mt-6">Guardar todo</button>
+            
+            <div className="flex gap-4 mt-6">
+                <button 
+                    type="button" 
+                    onClick={() => navigate('/aspirantes/perfil')}
+                    className="flex-1 bg-transparent border-2 border-gray-400 text-gray-700 font-bold py-3 rounded-lg shadow hover:bg-gray-100 transition text-lg flex items-center justify-center gap-2"
+                >
+                    <FaTimes /> Cancelar
+                </button>
+                <button 
+                    type="submit" 
+                    className="flex-1 bg-[#5e17eb] text-white font-bold py-3 rounded-lg shadow hover:bg-[#A67AFF] transition text-lg flex items-center justify-center gap-2"
+                >
+                    <FaCheckCircle /> Guardar todo
+                </button>
+            </div>
         </form>
         </main>
         <Footer />

@@ -55,7 +55,7 @@ function App() {
         <Route path="/admin/aspirantes" element={<Aspirantes />} />
         <Route path="/admin/empresas" element={<Empresas />} />
   {/* Dashboard privado del aspirante */}
-  <Route path="/aspirante/dashboard" element={<DashboardAspirante />} />
+  <Route path="/aspirantes/dashboard" element={<DashboardAspirante />} />
   <Route path="/aspirantes/perfil" element={<PerfilAspirante />} />
   {/* Redirección inteligente para /dashboard */}
   <Route path="/dashboard" element={<DashboardRedirect />} />
@@ -69,8 +69,8 @@ function App() {
   <Route path="/empresas/vacantes" element={<VacantesEmpresa />} />
   <Route path="/empresas/vacantes/editar/:id" element={<EditarVacanteEmpresa />} />
   <Route path="/empresas/postulaciones" element={<PostulacionesRecibidasEmpresa />} />
-  <Route path="/aspirante/vacantes" element={<VacantesDisponibles />} />
-  <Route path="/aspirante/vacantes/:id" element={<DetalleVacante />} />
+  <Route path="/aspirantes/vacantes" element={<VacantesDisponibles />} />
+  <Route path="/aspirantes/vacantes/:id" element={<DetalleVacante />} />
   <Route path="/aspirantes/postulaciones" element={<PostulacionesAspirante />} />
   <Route path="/aspirantes/postulaciones/:id" element={<DetallePostulacion />} />
       </Routes>

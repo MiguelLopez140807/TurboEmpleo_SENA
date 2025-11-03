@@ -9,9 +9,15 @@ class EmpresaSerializer(serializers.ModelSerializer):
         model = Empresa
         fields = '__all__'
 
-# Serializador anidado para Vacante
+# Serializador anidado para Vacante (para lectura)
 class VacanteSerializer(serializers.ModelSerializer):
-    va_idEmpresa_fk = EmpresaSerializer()
+    va_idEmpresa_fk = EmpresaSerializer(read_only=True)
+    class Meta:
+        model = Vacante
+        fields = '__all__'
+
+# Serializador para escritura de Vacante (para crear/actualizar)
+class VacanteWriteSerializer(serializers.ModelSerializer):
     class Meta:
         model = Vacante
         fields = '__all__'
@@ -30,6 +36,18 @@ class PostulacionWriteSerializer(serializers.ModelSerializer):
     class Meta:
         model = Postulacion
         fields = '__all__'
+    
+    def validate(self, data):
+        # Validar que el aspirante no se haya postulado ya a la misma vacante
+        aspirante = data.get('pos_aspirante_fk')
+        vacante = data.get('pos_vacante_fk')
+        
+        if Postulacion.objects.filter(pos_aspirante_fk=aspirante, pos_vacante_fk=vacante).exists():
+            raise serializers.ValidationError({
+                'detail': 'Ya te has postulado a esta vacante anteriormente.'
+            })
+        
+        return data
 
 # Serializer para lectura (GET), con datos anidados
 class PostulacionSerializer(serializers.ModelSerializer):
@@ -124,30 +142,43 @@ class EmpresaSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
-class VacanteSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Vacante
-        fields = '__all__'
-
-
 class UsuarioRegistroSerializer(serializers.Serializer):
     def validate(self, data):
         user_nombre = data.get('user_nombre')
         user_rol = data.get('user_rol', '').lower()
         asp_correo = data.get('asp_correo')
         em_email = data.get('em_email')
+        em_nit = data.get('em_nit')
+        
         # Validar nombre de usuario único
         if Usuarios.objects.filter(user_nombre=user_nombre).exists():
-            raise serializers.ValidationError({'user_nombre': 'El nombre de usuario ya está en uso.'})
+            raise serializers.ValidationError({
+                'user_nombre': 'El nombre de usuario ya está en uso.'
+            })
+        
         # Validar correo único según el tipo de usuario
         if user_rol == 'aspirante' and asp_correo:
             from .models import Aspirante
             if Aspirante.objects.filter(asp_correo=asp_correo).exists():
-                raise serializers.ValidationError({'asp_correo': 'El correo electrónico ya está registrado.'})
-        if user_rol == 'empresa' and em_email:
+                raise serializers.ValidationError({
+                    'asp_correo': 'Este correo electrónico ya está registrado.'
+                })
+        
+        if user_rol == 'empresa':
             from .models import Empresa
-            if Empresa.objects.filter(em_email=em_email).exists():
-                raise serializers.ValidationError({'em_email': 'El correo electrónico ya está registrado.'})
+            
+            # Validar correo único
+            if em_email and Empresa.objects.filter(em_email=em_email).exists():
+                raise serializers.ValidationError({
+                    'em_email': 'Este correo electrónico ya está registrado.'
+                })
+            
+            # Validar NIT único
+            if em_nit and Empresa.objects.filter(em_nit=em_nit).exists():
+                raise serializers.ValidationError({
+                    'em_nit': 'El NIT ya está registrado.'
+                })
+        
         return data
     user_nombre = serializers.CharField(max_length=100)
     user_contraseña = serializers.CharField(write_only=True)

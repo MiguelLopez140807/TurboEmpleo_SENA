@@ -22,7 +22,7 @@ const DashboardRedirect = () => {
   useEffect(() => {
     const rol = getUserRole();
     if (rol === 'aspirante') {
-      navigate('/aspirante/dashboard', { replace: true });
+      navigate('/aspirantes/dashboard', { replace: true });
     } else if (rol === 'empresa') {
       navigate('/empresas/dashboard', { replace: true });
     } else if (rol === 'admin') {

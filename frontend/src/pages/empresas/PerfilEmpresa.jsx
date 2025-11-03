@@ -97,9 +97,9 @@ function PerfilEmpresa() {
     return (
         <div className="min-h-screen flex flex-col bg-[#f6f4fa]">
             <Navbar />
-            <main className="flex-1 flex flex-row justify-center py-10 px-4">
+            <main className="flex-1 flex flex-row justify-center pt-24 pb-10 px-4">
                 {/* Sidebar */}
-                <aside className="w-64 bg-white rounded-2xl shadow-xl p-6 mr-8 h-fit self-start border-t-4 border-[#A67AFF] flex flex-col gap-4">
+                <aside className="w-64 bg-white rounded-2xl shadow-xl p-6 mr-8 h-fit sticky top-24 border-t-4 border-[#A67AFF] flex flex-col gap-4">
                     <button
                         className={`text-left px-4 py-3 rounded-lg font-semibold transition text-lg ${sidebarSection === "datos" ? "bg-[#A67AFF] text-white" : "bg-gray-100 text-[#A67AFF] hover:bg-[#5e17eb] hover:text-white"}`}
                         onClick={() => setSidebarSection("datos")}
@@ -202,7 +202,44 @@ function PerfilEmpresa() {
                                         </div>
                                     </div>
                                 </div>
-                                <button type="submit" className="w-full bg-[#A67AFF] text-white font-bold py-3 rounded-lg shadow hover:bg-[#5e17eb] transition text-lg mt-6">Guardar cambios</button>
+                                {/* Botones de acción */}
+                                <div className="flex flex-col md:flex-row gap-4 mt-6">
+                                    <button 
+                                        type="button" 
+                                        onClick={() => window.history.back()}
+                                        className="flex-1 bg-transparent border-2 border-red-500 text-red-500 font-bold py-3 rounded-lg shadow hover:bg-red-500 hover:text-white transition text-lg"
+                                    >
+                                        Cancelar
+                                    </button>
+                                    <button 
+                                        type="button" 
+                                        onClick={() => {
+                                            // Recargar los datos originales
+                                            if (!token || !empresaId) return;
+                                            fetch(`http://127.0.0.1:8000/api/empresas/${empresaId}/`, {
+                                                headers: { Authorization: `Bearer ${token}` },
+                                            })
+                                                .then((res) => res.json())
+                                                .then((data) => {
+                                                    setForm(data);
+                                                    setLogoFile(null);
+                                                    setLogoPreview(null);
+                                                    if (logoInputRef.current) logoInputRef.current.value = "";
+                                                    setSuccess("Datos restablecidos");
+                                                })
+                                                .catch(() => setError("Error al restablecer los datos"));
+                                        }}
+                                        className="flex-1 bg-transparent border-2 border-gray-400 text-gray-600 font-bold py-3 rounded-lg shadow hover:bg-gray-400 hover:text-white transition text-lg"
+                                    >
+                                        Limpiar datos
+                                    </button>
+                                    <button 
+                                        type="submit" 
+                                        className="flex-1 bg-[#A67AFF] text-white font-bold py-3 rounded-lg shadow hover:bg-[#5e17eb] transition text-lg"
+                                    >
+                                        Guardar cambios
+                                    </button>
+                                </div>
                             </form>
                         </>
                     )}
@@ -230,7 +267,10 @@ function PerfilEmpresa() {
                                     });
                                     const data = await res.json();
                                     if (res.ok) {
-                                        setSuccess("Contraseña cambiada correctamente.");
+                                        setSuccess("¡Contraseña cambiada correctamente!");
+                                        e.target.reset();
+                                        // Limpiar el mensaje después de 5 segundos
+                                        setTimeout(() => setSuccess(""), 5000);
                                     } else {
                                         setError(data.detail || "Error al cambiar la contraseña.");
                                     }
@@ -249,7 +289,7 @@ function PerfilEmpresa() {
                                 <h4 className="text-lg font-semibold text-red-600 mb-2">Eliminar cuenta</h4>
                                 <p className="text-gray-600 mb-4">Esta acción es irreversible. Todos los datos de la empresa serán eliminados.</p>
                                 <button
-                                    className="w-full bg-red-500 text-white font-bold py-2 rounded-lg hover:bg-red-700 transition"
+                                    className="w-full bg-transparent border-2 border-red-500 text-red-500 font-bold py-2 rounded-lg shadow hover:bg-red-500 hover:text-white transition"
                                     onClick={async () => {
                                         if (!window.confirm("¿Estás seguro de que deseas eliminar tu cuenta de empresa? Esta acción no se puede deshacer.")) return;
                                         setError("");

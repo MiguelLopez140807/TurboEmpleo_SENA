@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import Navbar from '../../components/navbar';
 import Footer from '../../components/footer';
+import { FaBuilding, FaArrowLeft } from 'react-icons/fa';
 
 function DetallePostulacion() {
     const { id } = useParams();
@@ -42,7 +43,9 @@ function DetallePostulacion() {
                         {empresa && empresa.em_logo ? (
                             <img src={empresa.em_logo} alt="Logo empresa" className="w-16 h-16 rounded-full object-cover border" />
                         ) : (
-                            <div className="w-16 h-16 rounded-full bg-gray-200 flex items-center justify-center text-gray-400 text-3xl font-bold">🏢</div>
+                            <div className="w-16 h-16 rounded-full bg-gradient-to-br from-purple-100 to-purple-200 flex items-center justify-center text-purple-600 border-2 border-purple-300">
+                                <FaBuilding className="text-2xl" />
+                            </div>
                         )}
                         <div>
                             <div className="font-bold text-2xl text-[#5e17eb]">{vac ? vac.va_titulo : 'Vacante'}</div>
@@ -80,6 +83,13 @@ function DetallePostulacion() {
                         </div>
                     )}
                     <div className="text-gray-700 text-md font-semibold">Estado de la postulación: <span className="text-[#5e17eb]">{postulacion.pos_estado}</span></div>
+                    
+                    <button
+                        className="mt-4 px-6 py-2 bg-transparent border-2 border-gray-400 text-gray-700 rounded hover:bg-gray-100 transition text-lg font-semibold flex items-center justify-center gap-2"
+                        onClick={() => navigate('/aspirantes/postulaciones')}
+                    >
+                        <FaArrowLeft /> Volver a mis postulaciones
+                    </button>
                 </div>
             </div>
             <Footer />

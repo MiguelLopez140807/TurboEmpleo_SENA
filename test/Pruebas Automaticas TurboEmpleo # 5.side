@@ -1,0 +1,173 @@
+{
+  "id": "df92d617-3e70-45fd-8b05-378386fd3f13",
+  "version": "2.0",
+  "name": "Pruebas Automaticas TurboEmpleo # 5",
+  "url": "http://localhost:5173",
+  "tests": [{
+    "id": "947bae2b-78eb-484e-b9b0-76650281199b",
+    "name": "Prueba de Eliminar Vacanta Empresa",
+    "commands": [{
+      "id": "d0b9913e-9fdf-4998-a5e3-c5f0344d1399",
+      "comment": "",
+      "command": "open",
+      "target": "/",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "84823406-e07a-4649-b560-ee59f4c32a95",
+      "comment": "",
+      "command": "setWindowSize",
+      "target": "697x728",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "31678a7e-e6c0-4d5d-998e-e44c3cfe7810",
+      "comment": "",
+      "command": "click",
+      "target": "linkText=Iniciar sesión",
+      "targets": [
+        ["linkText=Iniciar sesión", "linkText"],
+        ["css=.hover\\3A bg-\\[\\#f3e8ff\\]", "css:finder"],
+        ["xpath=//a[contains(text(),'Iniciar sesión')]", "xpath:link"],
+        ["xpath=//div[@id='root']/div/nav/div/div/div/div/a", "xpath:idRelative"],
+        ["xpath=//a[contains(@href, '/login')]", "xpath:href"],
+        ["xpath=//div/div/div/div/a", "xpath:position"],
+        ["xpath=//a[contains(.,'Iniciar sesión')]", "xpath:innerText"]
+      ],
+      "value": ""
+    }, {
+      "id": "d77c7443-8180-47c9-ab99-f60c0338f5e7",
+      "comment": "",
+      "command": "click",
+      "target": "id=userNombre",
+      "targets": [
+        ["id=userNombre", "id"],
+        ["css=#userNombre", "css:finder"],
+        ["xpath=//input[@id='userNombre']", "xpath:attributes"],
+        ["xpath=//div[@id='root']/div/div[2]/div/form/div/div/input", "xpath:idRelative"],
+        ["xpath=//input", "xpath:position"]
+      ],
+      "value": ""
+    }, {
+      "id": "09065363-f949-4cda-8d20-22f442207984",
+      "comment": "",
+      "command": "type",
+      "target": "id=userNombre",
+      "targets": [
+        ["id=userNombre", "id"],
+        ["css=#userNombre", "css:finder"],
+        ["xpath=//input[@id='userNombre']", "xpath:attributes"],
+        ["xpath=//div[@id='root']/div/div[2]/div/form/div/div/input", "xpath:idRelative"],
+        ["xpath=//input", "xpath:position"]
+      ],
+      "value": "Vecol"
+    }, {
+      "id": "0ce81eb9-cc9b-44c5-b58e-75f175e60d31",
+      "comment": "",
+      "command": "click",
+      "target": "id=password",
+      "targets": [
+        ["id=password", "id"],
+        ["css=#password", "css:finder"],
+        ["xpath=//input[@id='password']", "xpath:attributes"],
+        ["xpath=//div[@id='root']/div/div[2]/div/form/div[2]/div/input", "xpath:idRelative"],
+        ["xpath=//div[2]/div/input", "xpath:position"]
+      ],
+      "value": ""
+    }, {
+      "id": "4e05c40a-d454-45c9-86e1-26399f8d023e",
+      "comment": "",
+      "command": "type",
+      "target": "id=password",
+      "targets": [
+        ["id=password", "id"],
+        ["css=#password", "css:finder"],
+        ["xpath=//input[@id='password']", "xpath:attributes"],
+        ["xpath=//div[@id='root']/div/div[2]/div/form/div[2]/div/input", "xpath:idRelative"],
+        ["xpath=//div[2]/div/input", "xpath:position"]
+      ],
+      "value": "Vecol1234"
+    }, {
+      "id": "107878f4-2f3f-45f2-af2f-e3b7e974387e",
+      "comment": "",
+      "command": "sendKeys",
+      "target": "id=password",
+      "targets": [
+        ["id=password", "id"],
+        ["css=#password", "css:finder"],
+        ["xpath=//input[@id='password']", "xpath:attributes"],
+        ["xpath=//div[@id='root']/div/div[2]/div/form/div[2]/div/input", "xpath:idRelative"],
+        ["xpath=//div[2]/div/input", "xpath:position"]
+      ],
+      "value": "${KEY_ENTER}"
+    }, {
+      "id": "d204682f-240d-47da-a279-6d0d696e5f4c",
+      "comment": "",
+      "command": "click",
+      "target": "linkText=Gestionar vacantes",
+      "targets": [
+        ["linkText=Gestionar vacantes", "linkText"],
+        ["css=.bg-\\[\\#e0e7ff\\] > .mt-2", "css:finder"],
+        ["xpath=//a[contains(text(),'Gestionar vacantes')]", "xpath:link"],
+        ["xpath=//div[@id='root']/div/main/div/div/div[2]/a", "xpath:idRelative"],
+        ["xpath=//a[contains(@href, '/empresas/vacantes')]", "xpath:href"],
+        ["xpath=//div[2]/a", "xpath:position"],
+        ["xpath=//a[contains(.,'Gestionar vacantes')]", "xpath:innerText"]
+      ],
+      "value": ""
+    }, {
+      "id": "491d6899-93a5-447e-9196-a7a13009e276",
+      "comment": "",
+      "command": "click",
+      "target": "css=.bg-white:nth-child(4) .font-bold",
+      "targets": [
+        ["css=.bg-white:nth-child(4) .font-bold", "css:finder"],
+        ["xpath=//div[@id='root']/div/main/div/div[4]/div/div/div", "xpath:idRelative"],
+        ["xpath=//div[4]/div/div/div", "xpath:position"]
+      ],
+      "value": ""
+    }, {
+      "id": "5470aea6-1e21-4caf-8bd8-33f8435aa080",
+      "comment": "",
+      "command": "chooseOkOnNextConfirmation",
+      "target": "",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "68968d52-1364-4767-96b9-c9b09dd94839",
+      "comment": "",
+      "command": "click",
+      "target": "css=.bg-white:nth-child(4) .px-4:nth-child(2)",
+      "targets": [
+        ["css=.bg-white:nth-child(4) .px-4:nth-child(2)", "css:finder"],
+        ["xpath=//div[@id='root']/div/main/div/div[4]/div[15]/button[2]", "xpath:idRelative"],
+        ["xpath=//div[4]/div[15]/button[2]", "xpath:position"]
+      ],
+      "value": ""
+    }, {
+      "id": "7ee2788b-169a-4b4c-bfbf-5802c5b66898",
+      "comment": "",
+      "command": "assertConfirmation",
+      "target": "¿Estás seguro de que deseas eliminar esta vacante?",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "1dfbac11-d026-4b51-9648-07657dbb60fc",
+      "comment": "",
+      "command": "webdriverChooseOkOnVisibleConfirmation",
+      "target": "",
+      "targets": [],
+      "value": ""
+    }]
+  }],
+  "suites": [{
+    "id": "7b1e611a-305a-4673-b51c-5a36c0042ff1",
+    "name": "Default Suite",
+    "persistSession": false,
+    "parallel": false,
+    "timeout": 300,
+    "tests": ["947bae2b-78eb-484e-b9b0-76650281199b"]
+  }],
+  "urls": ["http://localhost:5173/"],
+  "plugins": []
+}

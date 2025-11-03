@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import Navbar from '../../components/navbar';
 import Footer from '../../components/footer';
+import { FaBuilding, FaArrowLeft, FaCheckCircle } from 'react-icons/fa';
 
 function DetalleVacante() {
     const { id } = useParams();
@@ -32,6 +33,18 @@ function DetalleVacante() {
             alert("Debes iniciar sesión como aspirante para postularte.");
             return;
         }
+        
+        // Validar que el aspirante tenga CV cargado
+        if (!userData.asp_curriculum) {
+            const confirmar = window.confirm(
+                "No has cargado tu hoja de vida. ¿Deseas ir a tu perfil para cargarla?"
+            );
+            if (confirmar) {
+                navigate("/aspirantes/perfil");
+            }
+            return;
+        }
+        
         try {
             const res = await fetch(`http://127.0.0.1:8000/api/postulaciones/`, {
                 method: "POST",
@@ -47,10 +60,19 @@ function DetalleVacante() {
             });
             const data = await res.json();
             if (res.ok) {
-                alert("¡Postulación exitosa!");
-                navigate("/aspirante/vacantes");
+                alert("¡Postulación exitosa! Tu solicitud ha sido enviada al empleador.");
+                
+                // Actualizar user_data en localStorage con la nueva postulación
+                const updatedUserData = { ...userData };
+                localStorage.setItem("user_data", JSON.stringify(updatedUserData));
+                
+                navigate("/aspirantes/postulaciones");
             } else {
-                alert(data.detail || JSON.stringify(data) || "No se pudo postular. Intenta nuevamente.");
+                if (res.status === 400 && data.detail && data.detail.includes("ya postulado")) {
+                    alert("Ya te has postulado a esta vacante anteriormente.");
+                } else {
+                    alert(data.detail || JSON.stringify(data) || "No se pudo postular. Intenta nuevamente.");
+                }
                 console.error("Error postulación:", data);
             }
         } catch (e) {
@@ -83,7 +105,9 @@ function DetalleVacante() {
                         {empresa && empresa.em_logo ? (
                             <img src={empresa.em_logo} alt="Logo empresa" className="w-16 h-16 rounded-full object-cover border" />
                         ) : (
-                            <div className="w-16 h-16 rounded-full bg-gray-200 flex items-center justify-center text-gray-400 text-3xl font-bold">🏢</div>
+                            <div className="w-16 h-16 rounded-full bg-gradient-to-br from-purple-100 to-purple-200 flex items-center justify-center text-purple-600 border-2 border-purple-300">
+                                <FaBuilding className="text-2xl" />
+                            </div>
                         )}
                         <div>
                             <div className="font-bold text-2xl text-[#5e17eb]">{vacante.va_titulo}</div>
@@ -127,12 +151,20 @@ function DetalleVacante() {
                             ))}
                         </div>
                     )}
-                    <button
-                        className="mt-4 px-6 py-2 bg-[#A67AFF] text-white rounded hover:bg-[#5e17eb] transition text-lg font-semibold"
-                        onClick={handlePostular}
-                    >
-                        Postularme
-                    </button>
+                    <div className="flex gap-4 mt-4">
+                        <button
+                            className="flex-1 px-6 py-2 bg-transparent border-2 border-gray-400 text-gray-700 rounded hover:bg-gray-100 transition text-lg font-semibold flex items-center justify-center gap-2"
+                            onClick={() => navigate('/aspirantes/vacantes')}
+                        >
+                            <FaArrowLeft /> Volver
+                        </button>
+                        <button
+                            className="flex-1 px-6 py-2 bg-[#A67AFF] text-white rounded hover:bg-[#5e17eb] transition text-lg font-semibold flex items-center justify-center gap-2"
+                            onClick={handlePostular}
+                        >
+                            <FaCheckCircle /> Postularme
+                        </button>
+                    </div>
                 </div>
             </div>
             <Footer />

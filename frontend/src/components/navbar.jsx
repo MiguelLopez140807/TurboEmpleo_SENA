@@ -42,7 +42,11 @@ function Navbar() {
         <FaSearch /> Inicio
       </Link>
       {user && user.asp_nombre ? (
-        <Link to="/aspirante/vacantes" className="text-gray-600 hover:text-[#5e17eb] transition-colors font-medium flex items-center gap-1">
+        <Link to="/aspirantes/vacantes" className="text-gray-600 hover:text-[#5e17eb] transition-colors font-medium flex items-center gap-1">
+          <FaBriefcase /> Vacantes
+        </Link>
+      ) : user && user.em_nombre ? (
+        <Link to="/empresas/vacantes" className="text-gray-600 hover:text-[#5e17eb] transition-colors font-medium flex items-center gap-1">
           <FaBriefcase /> Vacantes
         </Link>
       ) : (
@@ -50,9 +54,15 @@ function Navbar() {
           <FaBriefcase /> Vacantes
         </Link>
       )}
-      <Link to="/empresas" className="text-gray-600 hover:text-[#5e17eb] transition-colors font-medium flex items-center gap-1">
-        <FaBuilding /> Empresas
-      </Link>
+      {user && user.em_nombre ? (
+        <Link to="/empresas/dashboard" className="text-gray-600 hover:text-[#5e17eb] transition-colors font-medium flex items-center gap-1">
+          <FaBuilding /> Dashboard
+        </Link>
+      ) : (
+        <Link to="/empresas" className="text-gray-600 hover:text-[#5e17eb] transition-colors font-medium flex items-center gap-1">
+          <FaBuilding /> Empresas
+        </Link>
+      )}
       <Link to="/blog" className="text-gray-600 hover:text-[#5e17eb] transition-colors font-medium flex items-center gap-1">
         <FaBlog /> Blog
       </Link>
@@ -82,7 +92,7 @@ function Navbar() {
         <span>Mi Cuenta</span>
       </button>
       {userDropdownOpen && (
-        <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg py-2 z-50">
+        <div className="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-lg py-2 z-50">
           <Link 
             to={isEmpresa(user) ? "/empresas/perfil" : "/aspirantes/perfil"}
             className="block px-4 py-2 text-gray-800 hover:bg-[#f3e8ff] hover:text-[#5e17eb]"
@@ -90,10 +100,10 @@ function Navbar() {
           >
             Mi Perfil
           </Link>
-          {!isEmpresa(user) && (
+          {!isEmpresa(user) ? (
             <>
               <Link 
-                to="/aspirante/vacantes" 
+                to="/aspirantes/vacantes" 
                 className="block px-4 py-2 text-gray-800 hover:bg-[#f3e8ff] hover:text-[#5e17eb]"
                 onClick={() => setUserDropdownOpen(false)}
               >
@@ -105,6 +115,23 @@ function Navbar() {
                 onClick={() => setUserDropdownOpen(false)}
               >
                 Mis Postulaciones
+              </Link>
+            </>
+          ) : (
+            <>
+              <Link 
+                to="/empresas/vacantes" 
+                className="block px-4 py-2 text-gray-800 hover:bg-[#f3e8ff] hover:text-[#5e17eb]"
+                onClick={() => setUserDropdownOpen(false)}
+              >
+                Gestionar Vacantes
+              </Link>
+              <Link 
+                to="/empresas/postulaciones" 
+                className="block px-4 py-2 text-gray-800 hover:bg-[#f3e8ff] hover:text-[#5e17eb]"
+                onClick={() => setUserDropdownOpen(false)}
+              >
+                Ver Postulaciones
               </Link>
             </>
           )}
@@ -172,14 +199,40 @@ function Navbar() {
                     >
                       <FaUserCircle className="text-xl" /> Mi Perfil
                     </Link>
-                    {!isEmpresa(user) && (
-                      <Link
-                        to="/aspirantes/postulaciones"
-                        className="flex items-center gap-2 text-[#5e17eb] font-medium py-2"
-                        onClick={() => setMenuOpen(false)}
-                      >
-                        <FaBriefcase className="text-xl" /> Mis Postulaciones
-                      </Link>
+                    {!isEmpresa(user) ? (
+                      <>
+                        <Link
+                          to="/aspirantes/vacantes"
+                          className="flex items-center gap-2 text-[#5e17eb] font-medium py-2"
+                          onClick={() => setMenuOpen(false)}
+                        >
+                          <FaBriefcase className="text-xl" /> Vacantes
+                        </Link>
+                        <Link
+                          to="/aspirantes/postulaciones"
+                          className="flex items-center gap-2 text-[#5e17eb] font-medium py-2"
+                          onClick={() => setMenuOpen(false)}
+                        >
+                          <FaBriefcase className="text-xl" /> Mis Postulaciones
+                        </Link>
+                      </>
+                    ) : (
+                      <>
+                        <Link
+                          to="/empresas/vacantes"
+                          className="flex items-center gap-2 text-[#5e17eb] font-medium py-2"
+                          onClick={() => setMenuOpen(false)}
+                        >
+                          <FaBriefcase className="text-xl" /> Gestionar Vacantes
+                        </Link>
+                        <Link
+                          to="/empresas/postulaciones"
+                          className="flex items-center gap-2 text-[#5e17eb] font-medium py-2"
+                          onClick={() => setMenuOpen(false)}
+                        >
+                          <FaBriefcase className="text-xl" /> Ver Postulaciones
+                        </Link>
+                      </>
                     )}
                     <button
                       onClick={() => { setMenuOpen(false); handleLogout(); }}

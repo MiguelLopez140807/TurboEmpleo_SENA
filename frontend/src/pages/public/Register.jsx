@@ -7,7 +7,7 @@ import RegisterEmpresa from "./RegisterEmpresa";
 function Register() {
 	const [tipo, setTipo] = useState("aspirante");
 	return (
-		<div className="flex flex-col items-center justify-center min-h-[60vh]">
+		<div className="flex flex-col items-center justify-center min-h-[60vh] pt-24">
 			<h2 className="text-2xl font-bold text-[#A67AFF] mb-4">Registro</h2>
 			<div className="flex gap-4 mb-6">
 				<button
