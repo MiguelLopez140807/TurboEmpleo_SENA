@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import Navbar from '../../components/navbar';
 import Footer from '../../components/footer';
 import Breadcrumbs from '../../components/Breadcrumbs';
+import BadgeTurbo from '../../components/BadgeTurbo';
 import { FaSync, FaList, FaChartBar, FaMapMarkerAlt, FaCalendarAlt, FaUser, FaFileAlt, FaTimes, FaEnvelope, FaPhone, FaBriefcase, FaGraduationCap, FaLanguage, FaIdCard } from 'react-icons/fa';
 
 function PostulacionesRecibidasEmpresa() {
@@ -15,6 +16,7 @@ function PostulacionesRecibidasEmpresa() {
     const [filtroBusqueda, setFiltroBusqueda] = useState("");
     const [filtroFechaDesde, setFiltroFechaDesde] = useState("");
     const [filtroFechaHasta, setFiltroFechaHasta] = useState("");
+    const [filtroTurbo, setFiltroTurbo] = useState(false);
     const [ordenamiento, setOrdenamiento] = useState("reciente");
     const [vistaAgrupada, setVistaAgrupada] = useState(true);
     const [aspiranteSeleccionado, setAspiranteSeleccionado] = useState(null);
@@ -100,6 +102,11 @@ function PostulacionesRecibidasEmpresa() {
                 );
             }
             
+            // Aplicar filtro turbo
+            if (filtroTurbo) {
+                postulacionesFinales = postulacionesFinales.filter(post => post.pos_es_turbo);
+            }
+            
             // Aplicar ordenamiento
             postulacionesFinales.sort((a, b) => {
                 switch(ordenamiento) {
@@ -123,7 +130,7 @@ function PostulacionesRecibidasEmpresa() {
             setError("Error al cargar las postulaciones.");
             setLoading(false);
         });
-    }, [empresaId, token, filtroEstado, filtroVacante, filtroBusqueda, filtroFechaDesde, filtroFechaHasta, ordenamiento, vacantes]);
+    }, [empresaId, token, filtroEstado, filtroVacante, filtroBusqueda, filtroFechaDesde, filtroFechaHasta, filtroTurbo, ordenamiento, vacantes]);
 
     const cambiarEstadoPostulacion = async (postulacionId, nuevoEstado) => {
         try {
@@ -403,7 +410,7 @@ function PostulacionesRecibidasEmpresa() {
                     </div>
                     
                     {/* Segunda fila de filtros */}
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                    <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
                         <div>
                             <label className="block text-sm font-semibold text-gray-700 mb-1">Fecha desde</label>
                             <input
@@ -421,6 +428,20 @@ function PostulacionesRecibidasEmpresa() {
                                 onChange={(e) => setFiltroFechaHasta(e.target.value)}
                                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#5e17eb]"
                             />
+                        </div>
+                        <div>
+                            <label className="block text-sm font-semibold text-gray-700 mb-1">⚡ Solo Turbo</label>
+                            <div className="h-full flex items-center">
+                                <label className="flex items-center gap-2 cursor-pointer p-2 rounded-lg hover:bg-yellow-50 transition">
+                                    <input
+                                        type="checkbox"
+                                        checked={filtroTurbo}
+                                        onChange={(e) => setFiltroTurbo(e.target.checked)}
+                                        className="w-5 h-5 text-orange-600 rounded focus:ring-2 focus:ring-orange-500"
+                                    />
+                                    <span className="text-sm font-semibold text-gray-700">Postulaciones Turbo</span>
+                                </label>
+                            </div>
                         </div>
                         <div>
                             <label className="block text-sm font-semibold text-gray-700 mb-1">Ordenar por</label>
@@ -445,6 +466,7 @@ function PostulacionesRecibidasEmpresa() {
                                 setFiltroBusqueda("");
                                 setFiltroFechaDesde("");
                                 setFiltroFechaHasta("");
+                                setFiltroTurbo(false);
                                 setOrdenamiento("reciente");
                             }}
                             className="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition font-semibold flex items-center justify-center gap-2"
@@ -500,7 +522,17 @@ function PostulacionesRecibidasEmpresa() {
                                     {posts.map(post => {
                                         const aspirante = post.pos_aspirante_fk;
                                         return (
-                                            <div key={post.id} className="bg-gray-50 rounded-lg p-4 border border-gray-200 hover:shadow-md transition">
+                                            <div key={post.id} className="bg-gray-50 rounded-lg p-4 border border-gray-200 hover:shadow-md transition relative">
+                                                {/* ⚡ Badge Turbo si el aspirante solicitó turbo */}
+                                                {post.pos_es_turbo && post.pos_turbo_solicitado_por_aspirante && (
+                                                    <div className="absolute top-2 right-2">
+                                                        <BadgeTurbo 
+                                                            horasRespuesta={48} 
+                                                            size="sm" 
+                                                            tipo={post.tipo_turbo || 'aspirante'}
+                                                        />
+                                                    </div>
+                                                )}
                                                 <div className="flex items-center justify-between mb-3">
                                                     <div className="flex items-center gap-4">
                                                         {aspirante?.asp_foto ? (
@@ -617,8 +649,18 @@ function PostulacionesRecibidasEmpresa() {
                             const aspirante = post.pos_aspirante_fk;
                             const vacante = post.pos_vacante_fk;
                             return (
-                                <div key={post.id} className="bg-white rounded-xl shadow-md p-6 border-t-4 border-[#A67AFF] hover:shadow-lg transition">
-                                    <div className="flex items-center gap-3 mb-3">
+                                <div key={post.id} className="bg-white rounded-xl shadow-md p-6 border-t-4 border-[#A67AFF] hover:shadow-lg transition relative">
+                                    {/* ⚡ Badge Turbo si el aspirante solicitó turbo */}
+                                    {post.pos_es_turbo && post.pos_turbo_solicitado_por_aspirante && (
+                                        <div className="absolute top-4 right-4">
+                                            <BadgeTurbo 
+                                                horasRespuesta={48} 
+                                                size="sm" 
+                                                tipo={post.tipo_turbo || 'aspirante'}
+                                            />
+                                        </div>
+                                    )}
+                                    <div className="flex items-center gap-3 mb-3 pr-16">
                                         {aspirante?.asp_foto ? (
                                             <img src={aspirante.asp_foto} alt="Foto" className="w-12 h-12 rounded-full object-cover border" />
                                         ) : (

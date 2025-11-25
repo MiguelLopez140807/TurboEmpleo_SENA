@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import Navbar from '../../components/navbar';
 import Footer from '../../components/footer';
 import Breadcrumbs from '../../components/Breadcrumbs';
+import BadgeTurbo from '../../components/BadgeTurbo';
 import FormVacanteEmpresa from "./FormVacanteEmpresa";
 import { FaDollarSign, FaMapMarkerAlt, FaClock, FaEye, FaEdit, FaTrash, FaTimes, FaCheckCircle, FaTimesCircle, FaBriefcase, FaFileAlt, FaClipboardList, FaBullseye, FaGift } from 'react-icons/fa';
 
@@ -103,7 +104,9 @@ function VacantesEmpresa() {
                         </div>
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 w-full max-w-6xl">
                             {vacantes.map((vac) => (
-                                <div key={vac.id} className="bg-white rounded-xl shadow-lg hover:shadow-xl transition p-6 flex flex-col border-t-4 border-[#A67AFF]">
+                                <div key={vac.id} className="bg-white rounded-xl shadow-lg hover:shadow-xl transition p-6 flex flex-col border-t-4 border-[#A67AFF] relative">
+                                    {/* ⚡ Badge Turbo en la parte superior derecha junto al estado */}
+                                    
                                     {/* Header con logo y título */}
                                     <div className="flex items-start gap-3 mb-4">
                                         {userData.em_logo && (
@@ -172,7 +175,7 @@ function VacantesEmpresa() {
                                     {/* Header del modal */}
                                     <div className="sticky top-0 bg-gradient-to-r from-[#5e17eb] to-[#A67AFF] text-white p-6 rounded-t-2xl">
                                         <div className="flex items-start justify-between">
-                                            <div className="flex items-start gap-4">
+                                            <div className="flex items-start gap-4 flex-1">
                                                 {userData.em_logo && (
                                                     <img 
                                                         src={`http://127.0.0.1:8000${userData.em_logo}`} 
@@ -180,14 +183,20 @@ function VacantesEmpresa() {
                                                         className="w-16 h-16 object-cover rounded-lg border-2 border-white" 
                                                     />
                                                 )}
-                                                <div>
-                                                    <h2 className="text-2xl font-bold mb-1">{vacanteDetalle.va_titulo}</h2>
+                                                <div className="flex-1">
+                                                    <div className="flex items-start gap-3 mb-2">
+                                                        <h2 className="text-2xl font-bold flex-1">{vacanteDetalle.va_titulo}</h2>
+                                                        {/* ⚡ Badge Turbo en el título del modal */}
+                                                        {vacanteDetalle.va_modo_turbo && (
+                                                            <BadgeTurbo horasRespuesta={vacanteDetalle.va_tiempo_respuesta_horas} size="md" />
+                                                        )}
+                                                    </div>
                                                     <p className="text-purple-100">{userData.em_nombre}</p>
                                                 </div>
                                             </div>
                                             <button 
                                                 onClick={() => setVacanteDetalle(null)}
-                                                className="text-white hover:bg-white hover:bg-opacity-20 rounded-lg p-2 transition"
+                                                className="text-white hover:bg-white hover:bg-opacity-20 rounded-lg p-2 transition ml-2"
                                             >
                                                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -198,6 +207,22 @@ function VacantesEmpresa() {
                                     
                                     {/* Contenido del modal */}
                                     <div className="p-6 space-y-6">
+                                        {/* ⚡ Info Modo Turbo */}
+                                        {vacanteDetalle.va_modo_turbo && (
+                                            <div className="bg-gradient-to-r from-yellow-50 to-orange-50 border-2 border-yellow-300 rounded-xl p-4">
+                                                <div className="flex items-start gap-3">
+                                                    <span className="text-3xl">⚡</span>
+                                                    <div className="flex-1">
+                                                        <h4 className="font-bold text-gray-900 mb-1">Modo Turbo Activado</h4>
+                                                        <p className="text-sm text-gray-700">
+                                                            Te has comprometido a responder las postulaciones en <strong>{vacanteDetalle.va_tiempo_respuesta_horas} horas</strong>. 
+                                                            Esto mejora tu reputación como empresa y aumenta la visibilidad de tu vacante.
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        )}
+                                        
                                         {/* Información general */}
                                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                                             <div className="bg-purple-50 p-4 rounded-lg border-l-4 border-[#5e17eb]">

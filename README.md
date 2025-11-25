@@ -122,6 +122,7 @@ cd TURBOEMPLEO_PROYECTO_Millos
 cd backend
 python -m venv venv
 .\venv\Scripts\Activate
+source venv/Scripts/activate
 ```
 
 **En Windows (CMD):**

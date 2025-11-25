@@ -3,12 +3,14 @@ import { useNavigate } from "react-router-dom";
 import Navbar from '../../components/navbar';
 import Footer from '../../components/footer';
 import Breadcrumbs from '../../components/Breadcrumbs';
+import BadgeTurbo from '../../components/BadgeTurbo';
 import { FaMapMarkerAlt, FaDollarSign, FaClock, FaBuilding } from 'react-icons/fa';
 
 function PostulacionesAspirante() {
     const [postulaciones, setPostulaciones] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
+    const [filtroTurbo, setFiltroTurbo] = useState(false);
     const token = localStorage.getItem("token");
     const userData = JSON.parse(localStorage.getItem("user_data") || "null");
     const navigate = useNavigate();
@@ -58,11 +60,45 @@ function PostulacionesAspirante() {
                     </div>
                 ) : (
                     <div className="w-full max-w-6xl">
+                        {/* Filtro Turbo */}
+                        <div className="mb-6 p-4 bg-gradient-to-r from-yellow-50 to-orange-50 rounded-lg border-2 border-yellow-300">
+                            <label className="flex items-center gap-3 cursor-pointer">
+                                <input 
+                                    type="checkbox" 
+                                    checked={filtroTurbo}
+                                    onChange={(e) => setFiltroTurbo(e.target.checked)}
+                                    className="w-5 h-5 text-purple-600 bg-gray-100 border-gray-300 rounded focus:ring-purple-500 focus:ring-2"
+                                />
+                                <span className="flex items-center gap-2 text-base font-bold text-gray-800">
+                                    <span className="text-2xl">⚡</span>
+                                    Solo mostrar postulaciones con Modo Turbo
+                                </span>
+                            </label>
+                        </div>
+                        
                         <div className="mb-4 text-gray-700">
-                            Total de postulaciones: <span className="font-bold">{postulaciones.length}</span>
+                            Total de postulaciones: <span className="font-bold">
+                                {filtroTurbo 
+                                    ? postulaciones.filter(p => p.pos_es_turbo).length 
+                                    : postulaciones.length}
+                            </span>
+                            {filtroTurbo && (
+                                <span className="ml-2 text-sm text-gray-500">
+                                    (filtrando solo turbo)
+                                </span>
+                            )}
                         </div>
                         <div className="grid grid-cols-1 gap-6">
-                            {postulaciones.map((post) => {
+                            {postulaciones
+                                .filter(post => !filtroTurbo || post.pos_es_turbo)
+                                .length === 0 ? (
+                                    <div className="bg-white rounded-xl shadow p-8 text-center">
+                                        <p className="text-gray-600 mb-2">No tienes postulaciones turbo.</p>
+                                        <p className="text-sm text-gray-500">Busca vacantes con el badge ⚡ Turbo para obtener respuestas rápidas.</p>
+                                    </div>
+                                ) : postulaciones
+                                .filter(post => !filtroTurbo || post.pos_es_turbo)
+                                .map((post) => {
                                 const vac = post.pos_vacante_fk;
                                 const empresa = vac && vac.va_idEmpresa_fk;
                                 
@@ -85,42 +121,81 @@ function PostulacionesAspirante() {
                                 };
                                 
                                 return (
-                                    <div key={post.id} className="bg-white rounded-xl shadow-md p-6 border-l-4 border-[#A67AFF] hover:shadow-lg transition">
-                                        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-                                            <div className="flex items-start gap-4 flex-1">
-                                                {empresa && empresa.em_logo ? (
-                                                    <img src={empresa.em_logo} alt="Logo empresa" className="w-16 h-16 rounded-lg object-cover border-2 border-gray-200" />
-                                                ) : (
-                                                    <div className="w-16 h-16 rounded-lg bg-gradient-to-br from-purple-100 to-purple-200 flex items-center justify-center text-purple-600 border-2 border-purple-300">
-                                                        <FaBuilding className="text-2xl" />
-                                                    </div>
-                                                )}
-                                                <div className="flex-1">
-                                                    <h3 className="font-bold text-xl text-[#5e17eb] mb-1">{vac ? vac.va_titulo : 'Vacante'}</h3>
-                                                    <p className="text-gray-700 font-semibold text-sm mb-2">{empresa && empresa.em_nombre ? empresa.em_nombre : 'Empresa'}</p>
-                                                    {vac && (
-                                                        <div className="flex flex-wrap gap-3 text-sm text-gray-600">
-                                                            <span className="flex items-center gap-1"><FaMapMarkerAlt /> {vac.va_ubicacion}</span>
-                                                            <span className="flex items-center gap-1"><FaDollarSign /> ${vac.va_salario}</span>
-                                                            {vac.va_tipo_empleo && <span className="flex items-center gap-1"><FaClock /> {vac.va_tipo_empleo}</span>}
+                                    <div key={post.id} className="bg-white rounded-xl shadow-md p-6 border-l-4 border-[#A67AFF] hover:shadow-lg transition relative overflow-hidden">
+                                        {/* ⚡ Badge Turbo en esquina superior derecha - diferenciado por tipo */}
+                                        {post.pos_es_turbo && (
+                                            <div className="absolute top-4 right-4 z-10">
+                                                <BadgeTurbo 
+                                                    horasRespuesta={vac?.va_tiempo_respuesta_horas || 48} 
+                                                    size="sm" 
+                                                    tipo={post.tipo_turbo || 'vacante'}
+                                                />
+                                            </div>
+                                        )}
+                                        
+                                        <div className="flex flex-col gap-4">
+                                            {/* Fila principal con logo, info y estado */}
+                                            <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
+                                                <div className="flex items-start gap-4 flex-1 pr-20 md:pr-0">
+                                                    {empresa && empresa.em_logo ? (
+                                                        <img src={empresa.em_logo} alt="Logo empresa" className="w-16 h-16 rounded-lg object-cover border-2 border-gray-200" />
+                                                    ) : (
+                                                        <div className="w-16 h-16 rounded-lg bg-gradient-to-br from-purple-100 to-purple-200 flex items-center justify-center text-purple-600 border-2 border-purple-300">
+                                                            <FaBuilding className="text-2xl" />
                                                         </div>
                                                     )}
+                                                    <div className="flex-1">
+                                                        <h3 className="font-bold text-xl text-[#5e17eb] mb-1">{vac ? vac.va_titulo : 'Vacante'}</h3>
+                                                        <p className="text-gray-700 font-semibold text-sm mb-2">{empresa && empresa.em_nombre ? empresa.em_nombre : 'Empresa'}</p>
+                                                        {vac && (
+                                                            <div className="flex flex-wrap gap-3 text-sm text-gray-600">
+                                                                <span className="flex items-center gap-1"><FaMapMarkerAlt /> {vac.va_ubicacion}</span>
+                                                                <span className="flex items-center gap-1"><FaDollarSign /> ${vac.va_salario}</span>
+                                                                {vac.va_tipo_empleo && <span className="flex items-center gap-1"><FaClock /> {vac.va_tipo_empleo}</span>}
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                </div>
+                                                <div className="flex flex-col items-end gap-2">
+                                                    <span className={`px-4 py-2 rounded-full text-sm font-bold ${getEstadoColor(post.pos_estado)}`}>
+                                                        {post.pos_estado}
+                                                    </span>
+                                                    <p className="text-gray-400 text-xs">
+                                                        Postulado: {post.pos_fechaPostulacion ? new Date(post.pos_fechaPostulacion).toLocaleDateString('es-CO', { year: 'numeric', month: 'long', day: 'numeric' }) : ''}
+                                                    </p>
+                                                    <button
+                                                        onClick={() => navigate(`/aspirantes/postulaciones/${post.id}`)}
+                                                        className="px-4 py-1 bg-[#A67AFF] text-white rounded-lg hover:bg-[#5e17eb] transition text-sm mt-2"
+                                                    >
+                                                        Ver detalles
+                                                    </button>
                                                 </div>
                                             </div>
-                                            <div className="flex flex-col items-end gap-2">
-                                                <span className={`px-4 py-2 rounded-full text-sm font-bold ${getEstadoColor(post.pos_estado)}`}>
-                                                    {post.pos_estado}
-                                                </span>
-                                                <p className="text-gray-400 text-xs">
-                                                    Postulado: {post.pos_fechaPostulacion ? new Date(post.pos_fechaPostulacion).toLocaleDateString('es-CO', { year: 'numeric', month: 'long', day: 'numeric' }) : ''}
-                                                </p>
-                                                <button
-                                                    onClick={() => navigate(`/aspirantes/postulaciones/${post.id}`)}
-                                                    className="px-4 py-1 bg-[#A67AFF] text-white rounded-lg hover:bg-[#5e17eb] transition text-sm mt-2"
-                                                >
-                                                    Ver detalles
-                                                </button>
-                                            </div>
+                                            
+                                            {/* ⚡ Mensaje informativo para postulaciones turbo - Diferenciado por tipo */}
+                                            {post.pos_es_turbo && (
+                                                <div className={`w-full p-3 rounded-lg shadow-sm -mx-0 ${
+                                                    post.tipo_turbo === 'premium' 
+                                                        ? 'bg-gradient-to-r from-purple-50 via-pink-50 to-red-50 border-2 border-purple-400'
+                                                        : post.tipo_turbo === 'aspirante'
+                                                            ? 'bg-gradient-to-r from-blue-50 to-cyan-50 border-2 border-blue-400'
+                                                            : 'bg-gradient-to-r from-yellow-50 to-orange-50 border-2 border-yellow-400'
+                                                }`}>
+                                                    <p className="text-sm text-gray-800 flex items-center gap-2">
+                                                        <span className="text-xl">
+                                                            {post.tipo_turbo === 'premium' ? '⚡⚡' : '⚡'}
+                                                        </span>
+                                                        <span className="font-bold">
+                                                            {post.tipo_turbo === 'premium' 
+                                                                ? `¡PRIORIDAD MÁXIMA! Respuesta garantizada en ${vac?.va_tiempo_respuesta_horas || 48} horas`
+                                                                : post.tipo_turbo === 'aspirante'
+                                                                    ? 'Solicitaste respuesta prioritaria en 48 horas'
+                                                                    : `Respuesta garantizada en ${vac?.va_tiempo_respuesta_horas || 48} horas`
+                                                            }
+                                                        </span>
+                                                    </p>
+                                                </div>
+                                            )}
                                         </div>
                                     </div>
                                 );

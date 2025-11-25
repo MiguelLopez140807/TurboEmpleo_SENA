@@ -13,7 +13,9 @@ function FormVacanteEmpresa({ onSuccess, vacanteEditar, cancelarEdicion }) {
         va_responsabilidades: "",
         va_beneficios: "",
         va_habilidades: "",
-        va_estado: "Activa"
+        va_estado: "Activa",
+        va_modo_turbo: false,
+        va_tiempo_respuesta_horas: 48
     });
     const [error, setError] = useState("");
     const [success, setSuccess] = useState("");
@@ -33,7 +35,9 @@ function FormVacanteEmpresa({ onSuccess, vacanteEditar, cancelarEdicion }) {
                 va_responsabilidades: vacanteEditar.va_responsabilidades || "",
                 va_beneficios: vacanteEditar.va_beneficios || "",
                 va_habilidades: vacanteEditar.va_habilidades || "",
-                va_estado: vacanteEditar.va_estado || "Activa"
+                va_estado: vacanteEditar.va_estado || "Activa",
+                va_modo_turbo: vacanteEditar.va_modo_turbo || false,
+                va_tiempo_respuesta_horas: vacanteEditar.va_tiempo_respuesta_horas || 48
             });
         } else {
             setForm({
@@ -46,7 +50,9 @@ function FormVacanteEmpresa({ onSuccess, vacanteEditar, cancelarEdicion }) {
                 va_responsabilidades: "",
                 va_beneficios: "",
                 va_habilidades: "",
-                va_estado: "Activa"
+                va_estado: "Activa",
+                va_modo_turbo: false,
+                va_tiempo_respuesta_horas: 48
             });
         }
     }, [vacanteEditar]);
@@ -105,7 +111,9 @@ function FormVacanteEmpresa({ onSuccess, vacanteEditar, cancelarEdicion }) {
                     va_responsabilidades: "",
                     va_beneficios: "",
                     va_habilidades: "",
-                    va_estado: "Activa"
+                    va_estado: "Activa",
+                    va_modo_turbo: false,
+                    va_tiempo_respuesta_horas: 48
                 });
                 if (onSuccess) onSuccess();
             } else {
@@ -238,6 +246,52 @@ function FormVacanteEmpresa({ onSuccess, vacanteEditar, cancelarEdicion }) {
                         rows={3} 
                         placeholder="Lista las habilidades necesarias..."
                     />
+                </div>
+            </div>
+
+            {/* ⚡ SECCIÓN MODO TURBO */}
+            <div className="bg-gradient-to-r from-purple-50 to-blue-50 rounded-xl p-6 border-2 border-purple-200">
+                <div className="flex items-start gap-4">
+                    <div className="flex-1">
+                        <div className="flex items-center gap-2 mb-2">
+                            <span className="text-2xl">⚡</span>
+                            <h3 className="text-lg font-bold text-gray-800">Modo Turbo</h3>
+                            <span className="bg-yellow-400 text-yellow-900 text-xs font-bold px-2 py-1 rounded-full">NUEVO</span>
+                        </div>
+                        <p className="text-sm text-gray-600 mb-3">
+                            Activa el modo turbo para comprometerte a responder las postulaciones en tiempo récord. 
+                            Esto aumentará la visibilidad de tu vacante y mejorará tu reputación como empresa.
+                        </p>
+                        <div className="flex items-center gap-4">
+                            <label className="relative inline-flex items-center cursor-pointer">
+                                <input 
+                                    type="checkbox" 
+                                    checked={form.va_modo_turbo}
+                                    onChange={(e) => setForm(f => ({ ...f, va_modo_turbo: e.target.checked }))}
+                                    className="sr-only peer"
+                                />
+                                <div className="w-14 h-7 bg-gray-300 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-purple-300 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-purple-600"></div>
+                                <span className="ms-3 text-sm font-medium text-gray-900">
+                                    {form.va_modo_turbo ? 'Activado' : 'Desactivado'}
+                                </span>
+                            </label>
+                            
+                            {form.va_modo_turbo && (
+                                <div className="flex items-center gap-2">
+                                    <label className="text-sm font-semibold text-gray-700">Tiempo de respuesta:</label>
+                                    <select 
+                                        value={form.va_tiempo_respuesta_horas}
+                                        onChange={(e) => setForm(f => ({ ...f, va_tiempo_respuesta_horas: parseInt(e.target.value) }))}
+                                        className="px-3 py-1 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-purple-500 text-sm"
+                                    >
+                                        <option value={24}>24 horas</option>
+                                        <option value={48}>48 horas</option>
+                                        <option value={72}>72 horas</option>
+                                    </select>
+                                </div>
+                            )}
+                        </div>
+                    </div>
                 </div>
             </div>
             

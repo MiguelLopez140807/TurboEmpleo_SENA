@@ -5,13 +5,21 @@ from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
 # Serializador anidado para Empresa
 class EmpresaSerializer(serializers.ModelSerializer):
+    # ⚡ Campo calculado para mostrar el score actualizado
+    em_score_turbo_calculado = serializers.SerializerMethodField()
+    
     class Meta:
         model = Empresa
         fields = '__all__'
+    
+    def get_em_score_turbo_calculado(self, obj):
+        """Devuelve el score turbo calculado en tiempo real"""
+        return obj.calcular_score_turbo()
 
 # Serializador anidado para Vacante (para lectura)
 class VacanteSerializer(serializers.ModelSerializer):
     va_idEmpresa_fk = EmpresaSerializer(read_only=True)
+    
     class Meta:
         model = Vacante
         fields = '__all__'
@@ -21,13 +29,28 @@ class VacanteWriteSerializer(serializers.ModelSerializer):
     class Meta:
         model = Vacante
         fields = '__all__'
+    
+    def validate_va_tiempo_respuesta_horas(self, value):
+        """Valida que el tiempo de respuesta sea 24, 48 o 72 horas"""
+        if value not in [24, 48, 72]:
+            raise serializers.ValidationError(
+                'El tiempo de respuesta debe ser 24, 48 o 72 horas.'
+            )
+        return value
 
 
 # Serializer para Aspirante (mover arriba para evitar error de referencia)
 class AspiranteSerializer(serializers.ModelSerializer):
+    # ⚡ Campos calculados para turbo
+    creditos_turbo_disponibles = serializers.SerializerMethodField()
+    
     class Meta:
         model = Aspirante
         fields = '__all__'
+    
+    def get_creditos_turbo_disponibles(self, obj):
+        """Devuelve créditos turbo disponibles del aspirante"""
+        return obj.asp_creditos_turbo_disponibles
 
 # Serializer para Postulacion
 
@@ -53,9 +76,60 @@ class PostulacionWriteSerializer(serializers.ModelSerializer):
 class PostulacionSerializer(serializers.ModelSerializer):
     pos_vacante_fk = VacanteSerializer(read_only=True)
     pos_aspirante_fk = AspiranteSerializer(read_only=True)
+    # ⚡ Campos calculados para Modo Turbo
+    tiempo_restante_horas = serializers.SerializerMethodField()
+    esta_vencida = serializers.SerializerMethodField()
+    tipo_turbo = serializers.SerializerMethodField()
+    
     class Meta:
         model = Postulacion
         fields = '__all__'
+    
+    def get_tiempo_restante_horas(self, obj):
+        """Calcula las horas restantes para que la empresa responda"""
+        if not obj.pos_es_turbo or not obj.pos_fecha_limite_respuesta:
+            return None
+        
+        from django.utils import timezone
+        ahora = timezone.now()
+        
+        if ahora > obj.pos_fecha_limite_respuesta:
+            return 0  # Ya venció
+        
+        diferencia = obj.pos_fecha_limite_respuesta - ahora
+        horas_restantes = diferencia.total_seconds() / 3600
+        return round(horas_restantes, 1)
+    
+    def get_esta_vencida(self, obj):
+        """Indica si la postulación turbo ya venció"""
+        if not obj.pos_es_turbo or not obj.pos_fecha_limite_respuesta:
+            return False
+        
+        from django.utils import timezone
+        return timezone.now() > obj.pos_fecha_limite_respuesta
+    
+    def get_tipo_turbo(self, obj):
+        """
+        Devuelve el tipo de turbo:
+        - 'vacante': Solo la vacante es turbo
+        - 'aspirante': Solo el aspirante solicitó turbo
+        - 'premium': Ambos activaron turbo
+        - None: No es turbo
+        """
+        if not obj.pos_es_turbo:
+            return None
+        
+        vacante_turbo = obj.pos_vacante_fk.va_modo_turbo
+        aspirante_turbo = obj.pos_turbo_solicitado_por_aspirante
+        
+        if vacante_turbo and aspirante_turbo:
+            return 'premium'
+        elif vacante_turbo:
+            return 'vacante'
+        elif aspirante_turbo:
+            return 'aspirante'
+        
+        return None
 
 # Serializer para ExperienciaLaboral
 class ExperienciaLaboralSerializer(serializers.ModelSerializer):
@@ -67,6 +141,12 @@ class ExperienciaLaboralSerializer(serializers.ModelSerializer):
 class ExperienciaEscolarSerializer(serializers.ModelSerializer):
     class Meta:
         model = ExperienciaEscolar
+        fields = '__all__'
+
+# Serializer para Notificacion
+class NotificacionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Notificacion
         fields = '__all__'
 
 class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
@@ -136,10 +216,7 @@ class AspiranteSerializer(serializers.ModelSerializer):
         model = Aspirante
         fields = '__all__'
 
-class EmpresaSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Empresa
-        fields = '__all__'
+# Nota: EmpresaSerializer ya está definido arriba con campos turbo
 
 
 class UsuarioRegistroSerializer(serializers.Serializer):
@@ -316,10 +393,3 @@ class UsuarioRegistroSerializer(serializers.Serializer):
                 fail_silently=False,
             )
         return usuario
-
-# Serializer para Notificacion
-class NotificacionSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Notificacion
-        fields = '__all__'
-        read_only_fields = ('not_fecha',)

@@ -151,6 +151,20 @@ function DetalleVacante() {
                             ))}
                         </div>
                     )}
+                    
+                    {/* Información sobre Modo Turbo si la vacante lo tiene */}
+                    {vacante.va_modo_turbo && (
+                        <div className="my-4 p-4 bg-gradient-to-r from-yellow-50 to-orange-50 border-2 border-yellow-400 rounded-lg">
+                            <div className="flex items-center gap-2 mb-2">
+                                <span className="text-xl">⚡</span>
+                                <span className="font-bold text-orange-700">Esta vacante es TURBO</span>
+                            </div>
+                            <p className="text-sm text-gray-700">
+                                La empresa se compromete a responder en {vacante.va_tiempo_respuesta_horas} horas garantizadas.
+                            </p>
+                        </div>
+                    )}
+                    
                     <div className="flex gap-4 mt-4">
                         <button
                             className="flex-1 px-6 py-2 bg-transparent border-2 border-gray-400 text-gray-700 rounded hover:bg-gray-100 transition text-lg font-semibold flex items-center justify-center gap-2"

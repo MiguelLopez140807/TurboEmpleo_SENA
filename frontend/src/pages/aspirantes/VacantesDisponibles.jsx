@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import Navbar from '../../components/navbar';
 import Footer from '../../components/footer';
 import Breadcrumbs from '../../components/Breadcrumbs';
+import BadgeTurbo from '../../components/BadgeTurbo';
 import { FaBuilding } from 'react-icons/fa';
 
 function VacantesDisponibles() {
@@ -17,6 +18,7 @@ function VacantesDisponibles() {
     const [filtroUbicacion, setFiltroUbicacion] = useState("");
     const [filtroTipoEmpleo, setFiltroTipoEmpleo] = useState("");
     const [filtroBusqueda, setFiltroBusqueda] = useState("");
+    const [filtroTurbo, setFiltroTurbo] = useState(false);
 
     const breadcrumbItems = [
         { label: 'Dashboard', path: '/aspirantes/dashboard' },
@@ -27,14 +29,19 @@ function VacantesDisponibles() {
         setLoading(true);
         setError(""); // Limpiar error anterior
         
-        // Construir parámetros de filtro
-        const params = new URLSearchParams();
-        if (filtroUbicacion) params.append('ubicacion', filtroUbicacion);
-        if (filtroTipoEmpleo) params.append('tipo_empleo', filtroTipoEmpleo);
-        if (filtroBusqueda) params.append('search', filtroBusqueda);
-        params.append('estado', 'Activa'); // Solo mostrar vacantes activas
-        
-        const url = `http://127.0.0.1:8000/api/vacantes/?${params.toString()}`;
+        // Si filtro turbo está activado, usar endpoint especial
+        let url;
+        if (filtroTurbo) {
+            url = 'http://127.0.0.1:8000/api/vacantes/turbo/';
+        } else {
+            // Construir parámetros de filtro normales
+            const params = new URLSearchParams();
+            if (filtroUbicacion) params.append('ubicacion', filtroUbicacion);
+            if (filtroTipoEmpleo) params.append('tipo_empleo', filtroTipoEmpleo);
+            if (filtroBusqueda) params.append('search', filtroBusqueda);
+            params.append('estado', 'Activa'); // Solo mostrar vacantes activas
+            url = `http://127.0.0.1:8000/api/vacantes/?${params.toString()}`;
+        }
         
         fetch(url, {
             headers: token ? { Authorization: `Bearer ${token}` } : {},
@@ -72,12 +79,13 @@ function VacantesDisponibles() {
 
     useEffect(() => {
         fetchVacantes();
-    }, [filtroUbicacion, filtroTipoEmpleo, filtroBusqueda]);
+    }, [filtroUbicacion, filtroTipoEmpleo, filtroBusqueda, filtroTurbo]);
 
     const limpiarFiltros = () => {
         setFiltroUbicacion("");
         setFiltroTipoEmpleo("");
         setFiltroBusqueda("");
+        setFiltroTurbo(false);
     };
 
     const handlePostular = async (vacanteId) => {
@@ -118,6 +126,23 @@ function VacantesDisponibles() {
                 {/* Panel de Filtros */}
                 <div className="w-full max-w-6xl bg-white rounded-xl shadow-lg p-6 mb-6 border-t-4 border-[#5e17eb]">
                     <h2 className="text-xl font-bold text-[#5e17eb] mb-4">Filtrar vacantes</h2>
+                    
+                    {/* ⚡ Filtro Turbo destacado */}
+                    <div className="mb-4 p-4 bg-gradient-to-r from-yellow-50 to-orange-50 rounded-lg border-2 border-yellow-300">
+                        <label className="flex items-center gap-3 cursor-pointer">
+                            <input 
+                                type="checkbox" 
+                                checked={filtroTurbo}
+                                onChange={(e) => setFiltroTurbo(e.target.checked)}
+                                className="w-5 h-5 text-purple-600 bg-gray-100 border-gray-300 rounded focus:ring-purple-500 focus:ring-2"
+                            />
+                            <span className="flex items-center gap-2 text-base font-bold text-gray-800">
+                                <span className="text-2xl">⚡</span>
+                                Solo vacantes con Modo Turbo (respuesta rápida garantizada)
+                            </span>
+                        </label>
+                    </div>
+
                     <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                         <div>
                             <label className="block text-sm font-semibold text-gray-700 mb-1">Búsqueda</label>
@@ -127,6 +152,7 @@ function VacantesDisponibles() {
                                 value={filtroBusqueda}
                                 onChange={(e) => setFiltroBusqueda(e.target.value)}
                                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#5e17eb]"
+                                disabled={filtroTurbo}
                             />
                         </div>
                         <div>
@@ -137,6 +163,7 @@ function VacantesDisponibles() {
                                 value={filtroUbicacion}
                                 onChange={(e) => setFiltroUbicacion(e.target.value)}
                                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#5e17eb]"
+                                disabled={filtroTurbo}
                             />
                         </div>
                         <div>
@@ -145,6 +172,7 @@ function VacantesDisponibles() {
                                 value={filtroTipoEmpleo}
                                 onChange={(e) => setFiltroTipoEmpleo(e.target.value)}
                                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#5e17eb]"
+                                disabled={filtroTurbo}
                             >
                                 <option value="">Todos</option>
                                 <option value="Tiempo completo">Tiempo completo</option>
@@ -191,7 +219,14 @@ function VacantesDisponibles() {
                             const fecha = vac.va_fecha_publicacion ? new Date(vac.va_fecha_publicacion) : null;
                             const fechaStr = fecha ? fecha.toLocaleDateString('es-CO', { year: 'numeric', month: 'long', day: 'numeric' }) : '';
                             return (
-                                <div key={vac.id} className="bg-white rounded-xl shadow p-6 flex flex-col gap-2 border-t-4 border-[#A67AFF]">
+                                <div key={vac.id} className="bg-white rounded-xl shadow p-6 flex flex-col gap-2 border-t-4 border-[#A67AFF] relative">
+                                    {/* ⚡ Badge Turbo en esquina superior derecha */}
+                                    {vac.va_modo_turbo && (
+                                        <div className="absolute top-3 right-3">
+                                            <BadgeTurbo horasRespuesta={vac.va_tiempo_respuesta_horas} size="sm" />
+                                        </div>
+                                    )}
+                                    
                                     <div className="flex items-center gap-3 mb-2">
                                         {empresa && empresa.em_logo ? (
                                             <img src={empresa.em_logo} alt="Logo empresa" className="w-12 h-12 rounded-full object-cover border" />
@@ -200,7 +235,7 @@ function VacantesDisponibles() {
                                                 <FaBuilding className="text-xl" />
                                             </div>
                                         )}
-                                        <div>
+                                        <div className="flex-1">
                                             <div className="font-bold text-lg text-[#5e17eb]">{vac.va_titulo}</div>
                                             <div className="text-gray-700 font-semibold text-sm">{empresa && empresa.em_nombre ? empresa.em_nombre : 'Empresa'}</div>
                                         </div>

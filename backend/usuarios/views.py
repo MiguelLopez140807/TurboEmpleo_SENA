@@ -35,6 +35,166 @@ class PostulacionViewSet(viewsets.ModelViewSet):
         queryset = queryset.order_by('-pos_fechaPostulacion')
         
         return queryset
+    
+    # ⚡ ENDPOINTS MODO TURBO
+    @action(detail=False, methods=['get'])
+    def turbo(self, request):
+        """
+        Endpoint: GET /api/postulaciones/turbo/
+        Devuelve solo postulaciones en modo turbo
+        """
+        postulaciones_turbo = self.queryset.filter(pos_es_turbo=True)
+        
+        # Filtrar por aspirante si se especifica
+        aspirante = request.query_params.get('aspirante', None)
+        if aspirante:
+            postulaciones_turbo = postulaciones_turbo.filter(pos_aspirante_fk=aspirante)
+        
+        serializer = self.get_serializer(postulaciones_turbo, many=True)
+        return Response(serializer.data)
+    
+    @action(detail=False, methods=['get'])
+    def turbo_pendientes(self, request):
+        """
+        Endpoint: GET /api/postulaciones/turbo_pendientes/?empresa=<id>
+        Devuelve postulaciones turbo pendientes de respuesta para una empresa
+        """
+        from django.utils import timezone
+        
+        empresa = request.query_params.get('empresa', None)
+        if not empresa:
+            return Response(
+                {'error': 'Parámetro empresa es requerido'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        postulaciones_pendientes = self.queryset.filter(
+            pos_es_turbo=True,
+            pos_estado='Pendiente',
+            pos_vacante_fk__va_idEmpresa_fk=empresa,
+            pos_fecha_limite_respuesta__gt=timezone.now()
+        ).order_by('pos_fecha_limite_respuesta')
+        
+        serializer = self.get_serializer(postulaciones_pendientes, many=True)
+        return Response(serializer.data)
+    
+    @action(detail=True, methods=['post'])
+    def responder_turbo(self, request, pk=None):
+        """
+        Endpoint: POST /api/postulaciones/<id>/responder_turbo/
+        Marca una postulación turbo como respondida y actualiza el score de la empresa
+        Body: { "nuevo_estado": "Aceptada" | "Rechazada" }
+        """
+        from django.utils import timezone
+        
+        postulacion = self.get_object()
+        
+        if not postulacion.pos_es_turbo:
+            return Response(
+                {'error': 'Esta postulación no es turbo'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        nuevo_estado = request.data.get('nuevo_estado')
+        if nuevo_estado not in ['Aceptada', 'Rechazada']:
+            return Response(
+                {'error': 'Estado debe ser Aceptada o Rechazada'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        # Actualizar estado
+        postulacion.pos_estado = nuevo_estado
+        
+        # Verificar si respondió a tiempo
+        ahora = timezone.now()
+        if ahora <= postulacion.pos_fecha_limite_respuesta:
+            postulacion.pos_respondida_a_tiempo = True
+        
+        postulacion.save()
+        
+        serializer = self.get_serializer(postulacion)
+        return Response(serializer.data)
+    
+    @action(detail=True, methods=['post'])
+    def activar_turbo_aspirante(self, request, pk=None):
+        """
+        Endpoint: POST /api/postulaciones/<id>/activar_turbo_aspirante/
+        Permite al aspirante activar modo turbo en una postulación existente
+        """
+        from django.utils import timezone
+        from datetime import timedelta
+        
+        postulacion = self.get_object()
+        aspirante = postulacion.pos_aspirante_fk
+        vacante = postulacion.pos_vacante_fk
+        
+        # Validaciones
+        if postulacion.pos_es_turbo:
+            return Response(
+                {'error': 'Esta postulación ya está en modo turbo'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        if postulacion.pos_estado != 'Pendiente':
+            return Response(
+                {'error': 'Solo puedes activar turbo en postulaciones pendientes'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        if aspirante.asp_creditos_turbo_disponibles <= 0:
+            return Response(
+                {'error': f'No tienes créditos turbo disponibles. Créditos restantes: {aspirante.asp_creditos_turbo_disponibles}'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        # Activar modo turbo
+        postulacion.pos_es_turbo = True
+        postulacion.pos_turbo_solicitado_por_aspirante = True
+        postulacion.pos_creditos_turbo_usados = 1
+        
+        # Determinar horas de respuesta
+        if vacante.va_modo_turbo:
+            horas_limite = vacante.va_tiempo_respuesta_horas
+        else:
+            horas_limite = 48  # Default para turbo del aspirante
+        
+        # Establecer fecha límite
+        postulacion.pos_fecha_limite_respuesta = timezone.now() + timedelta(hours=horas_limite)
+        postulacion.save()
+        
+        # Descontar crédito del aspirante
+        aspirante.asp_creditos_turbo_disponibles -= 1
+        aspirante.asp_creditos_turbo_usados += 1
+        aspirante.save()
+        
+        # Incrementar contador de empresa
+        empresa = vacante.va_idEmpresa_fk
+        empresa.em_total_postulaciones_turbo += 1
+        empresa.save()
+        
+        # Crear notificación para el aspirante
+        from .models import Notificacion
+        usuario_aspirante = aspirante.asp_usuario_fk
+        Notificacion.objects.create(
+            not_usuario_fk=usuario_aspirante,
+            not_contenido=f"⚡ Modo Turbo activado para '{vacante.va_titulo}'. Respuesta prioritaria en {horas_limite} horas. Créditos restantes: {aspirante.asp_creditos_turbo_disponibles}",
+            not_estado='No leída'
+        )
+        
+        # Crear notificación para la empresa
+        usuario_empresa = empresa.em_usuario_fk
+        Notificacion.objects.create(
+            not_usuario_fk=usuario_empresa,
+            not_contenido=f"⚡ {aspirante.asp_nombre} {aspirante.asp_apellido} solicita respuesta TURBO para '{vacante.va_titulo}'",
+            not_estado='No leída'
+        )
+        
+        serializer = self.get_serializer(postulacion)
+        return Response({
+            'message': 'Modo turbo activado exitosamente',
+            'creditos_restantes': aspirante.asp_creditos_turbo_disponibles,
+            'postulacion': serializer.data
+        })
 from .models import ExperienciaLaboral, ExperienciaEscolar
 from rest_framework import viewsets
 from rest_framework import status
@@ -74,6 +234,48 @@ class AspiranteViewSet(viewsets.ModelViewSet):
 class EmpresaViewSet(viewsets.ModelViewSet):
     queryset = Empresa.objects.all()
     serializer_class = EmpresaSerializer
+    
+    # ⚡ ENDPOINTS MODO TURBO
+    @action(detail=False, methods=['get'])
+    def ranking_turbo(self, request):
+        """
+        Endpoint: GET /api/empresas/ranking_turbo/
+        Devuelve ranking de empresas por score turbo (mejores primero)
+        """
+        empresas_con_turbo = self.queryset.filter(
+            em_total_postulaciones_turbo__gt=0
+        ).order_by('-em_score_turbo', '-em_respuestas_a_tiempo')
+        
+        serializer = self.get_serializer(empresas_con_turbo, many=True)
+        return Response(serializer.data)
+    
+    @action(detail=True, methods=['get'])
+    def estadisticas_turbo(self, request, pk=None):
+        """
+        Endpoint: GET /api/empresas/<id>/estadisticas_turbo/
+        Devuelve estadísticas detalladas de modo turbo para una empresa
+        """
+        empresa = self.get_object()
+        
+        tasa_respuesta = 0
+        if empresa.em_total_postulaciones_turbo > 0:
+            tasa_respuesta = (empresa.em_respuestas_a_tiempo / empresa.em_total_postulaciones_turbo) * 100
+        
+        estadisticas = {
+            'em_score_turbo': empresa.em_score_turbo,
+            'em_score_turbo_calculado': empresa.calcular_score_turbo(),
+            'em_total_postulaciones_turbo': empresa.em_total_postulaciones_turbo,
+            'em_respuestas_a_tiempo': empresa.em_respuestas_a_tiempo,
+            'respuestas_tarde': empresa.em_total_postulaciones_turbo - empresa.em_respuestas_a_tiempo,
+            'tasa_respuesta_porcentaje': round(tasa_respuesta, 1),
+            'vacantes_turbo_activas': Vacante.objects.filter(
+                va_idEmpresa_fk=empresa,
+                va_modo_turbo=True,
+                va_estado='Activa'
+            ).count()
+        }
+        
+        return Response(estadisticas)
 
 
 class VacanteViewSet(viewsets.ModelViewSet):
@@ -117,6 +319,36 @@ class VacanteViewSet(viewsets.ModelViewSet):
         queryset = queryset.order_by('-va_fecha_publicacion')
         
         return queryset
+    
+    # ⚡ ENDPOINTS MODO TURBO
+    @action(detail=False, methods=['get'])
+    def turbo(self, request):
+        """
+        Endpoint: GET /api/vacantes/turbo/
+        Devuelve solo vacantes con modo turbo activado
+        """
+        vacantes_turbo = self.queryset.filter(va_modo_turbo=True, va_estado='Activa')
+        serializer = self.get_serializer(vacantes_turbo, many=True)
+        return Response(serializer.data)
+    
+    @action(detail=False, methods=['get'])
+    def turbo_recomendadas(self, request):
+        """
+        Endpoint: GET /api/vacantes/turbo_recomendadas/
+        Devuelve vacantes turbo de empresas con mejor score
+        """
+        from django.db.models import F
+        
+        vacantes_turbo = self.queryset.filter(
+            va_modo_turbo=True, 
+            va_estado='Activa'
+        ).select_related('va_idEmpresa_fk').order_by(
+            '-va_idEmpresa_fk__em_score_turbo',
+            '-va_fecha_publicacion'
+        )
+        
+        serializer = self.get_serializer(vacantes_turbo, many=True)
+        return Response(serializer.data)
 
 class DetalleVacanteViewSet(viewsets.ModelViewSet):
     pass  # Eliminado Detalle_Vacante

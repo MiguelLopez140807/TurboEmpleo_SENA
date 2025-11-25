@@ -30,6 +30,10 @@ class Aspirante(models.Model):
     asp_foto = models.ImageField(upload_to='fotos_aspirantes/', blank=True, null=True)
     # Enlaces de clave foránea a un usuario
     asp_usuario_fk = models.ForeignKey('Usuarios', on_delete=models.CASCADE)
+    
+    # ⚡ CAMPOS MODO TURBO - CRÉDITOS DEL ASPIRANTE
+    asp_creditos_turbo_disponibles = models.IntegerField(default=3, help_text="Créditos turbo disponibles para usar")
+    asp_creditos_turbo_usados = models.IntegerField(default=0, help_text="Total de créditos turbo utilizados")
 
     def __str__(self):
         return f"{self.asp_nombre} {self.asp_apellido}"
@@ -53,9 +57,21 @@ class Empresa(models.Model):
     em_curriculum = models.FileField(upload_to='empresas_docs/', blank=True, null=True)
     em_logo = models.ImageField(upload_to='logos_empresas/', blank=True, null=True)
     em_usuario_fk = models.ForeignKey('Usuarios', on_delete=models.CASCADE)
+    
+    # ⚡ CAMPOS MODO TURBO - SCORE Y ESTADÍSTICAS
+    em_score_turbo = models.FloatField(default=5.0, help_text="Puntuación de confiabilidad (0-5)")
+    em_total_postulaciones_turbo = models.IntegerField(default=0, help_text="Total de postulaciones turbo recibidas")
+    em_respuestas_a_tiempo = models.IntegerField(default=0, help_text="Postulaciones respondidas a tiempo")
 
     def __str__(self):
         return self.em_nombre
+    
+    def calcular_score_turbo(self):
+        """Calcula el score de confiabilidad basado en respuestas a tiempo"""
+        if self.em_total_postulaciones_turbo == 0:
+            return 5.0
+        tasa_respuesta = (self.em_respuestas_a_tiempo / self.em_total_postulaciones_turbo) * 5
+        return round(tasa_respuesta, 1)
 
 # Modelo de Usuario personalizado para Django
 class MyUserManager(BaseUserManager):
@@ -128,6 +144,10 @@ class Vacante(models.Model):
     va_estado = models.CharField(max_length=20)
     va_idEmpresa_fk = models.ForeignKey(Empresa, on_delete=models.CASCADE)
     va_fecha_publicacion = models.DateTimeField(auto_now_add=True)
+    
+    # ⚡ CAMPOS MODO TURBO
+    va_modo_turbo = models.BooleanField(default=False, help_text="Activar modo de respuesta rápida")
+    va_tiempo_respuesta_horas = models.IntegerField(default=48, help_text="Horas comprometidas para responder (24, 48 o 72)")
 
     def __str__(self):
         return self.va_titulo
@@ -139,6 +159,13 @@ class Postulacion(models.Model):
     pos_fechaPostulacion = models.DateTimeField(auto_now_add=True)
     pos_aspirante_fk = models.ForeignKey(Aspirante, on_delete=models.CASCADE)
     pos_vacante_fk = models.ForeignKey(Vacante, on_delete=models.CASCADE)
+    
+    # ⚡ CAMPOS MODO TURBO
+    pos_es_turbo = models.BooleanField(default=False, help_text="Indica si es una postulación en modo turbo")
+    pos_fecha_limite_respuesta = models.DateTimeField(null=True, blank=True, help_text="Fecha límite para que la empresa responda")
+    pos_respondida_a_tiempo = models.BooleanField(default=False, help_text="Indica si la empresa respondió dentro del plazo")
+    pos_turbo_solicitado_por_aspirante = models.BooleanField(default=False, help_text="El aspirante activó modo turbo en esta postulación")
+    pos_creditos_turbo_usados = models.IntegerField(default=0, help_text="Créditos turbo utilizados en esta postulación (0 o 1)")
 
     def __str__(self):
         return f"{self.pos_aspirante_fk} a {self.pos_vacante_fk} ({self.pos_estado})"
