@@ -964,186 +964,81 @@ CORS_ALLOWED_ORIGINS=http://localhost:5173,http://127.0.0.1:5173
 
 ---
 
+## 📊 Personal Software Process (PSP)
 
-README: Aplicación del Personal Software Process (PSP)
+<div align="center">
 
-Proyecto: TurboEmpleo (Plataforma de Conexión Laboral)
+**Aplicación del PSP al Proyecto TurboEmpleo**
+
+*Análisis de desempeño y mejora continua del proceso de desarrollo*
+
+</div>
+
+### 📌 Información General
+
+| Campo | Valor |
+|-------|-------|
+| **Desarrollador** | Miguel López (Ficha 3147252) |
+| **Fecha de Evaluación** | 12 de Noviembre de 2025 |
+| **Proyecto** | TurboEmpleo (Plataforma de Conexión Laboral) |
+| **Tecnologías** | Python/Django, React, Tailwind CSS |
+| **Centro** | CGMLTI - SENA |
+
+---
+
+### 📈 Resumen de Métricas Cuantitativas
 
 Este documento aplica los principios del Personal Software Process (PSP) para analizar y mejorar el desempeño individual en el desarrollo del proyecto TurboEmpleo. Se utiliza la data histórica (LOC, tiempo y defectos) para generar un Plan Personal de Mejora (PPIP).
 
-1. Información General del PSP
+| Métrica | Estimado | Real | Desviación (%) | Observaciones |
+|---------|----------|------|----------------|---------------|
+| **Tamaño Total (KLOC)** | 10 KLOC | 12 KLOC | +20.0% | Se añadieron funcionalidades al módulo de chat (Scope Creep) |
+| **Tiempo Invertido** | 960 horas | 955 horas | -0.52% | Alta precisión en la estimación del esfuerzo |
+| **Productividad** | 10.4 LOC/h | 12.5 LOC/h | N/A | Buena productividad para la complejidad del proyecto |
+| **Defectos Totales** | N/A | 40 | N/A | Defectos encontrados en Pruebas y Post-Codificación |
+| **Densidad de Defectos** | N/A | 3.33 defectos/KLOC | N/A | Meta de calidad a reducir en el próximo ciclo |
 
-Campo
+---
 
-Valor
+### 🎯 Análisis de Desempeño y Diagnóstico
 
-Nombre del Desarrollador
+#### ✅ Fortalezas del Proceso Personal
 
-Miguel López (Ficha 3147252)
+- **📊 Estimación Precisa:** El esfuerzo fue estimado con una desviación mínima (-0.52%), demostrando solidez en la fase de planificación.
+- **🔍 Calidad en la Detección:** Uso efectivo de Pruebas Automatizadas (Selenium/Locust) para detectar defectos complejos (concurrencia, carga).
+- **⚙️ Automatización:** La implementación de CI/CD aceleró el despliegue y redujo los errores en la entrega final.
+- **🎨 Enfoque UX:** Uso de Figma para refinar la interfaz y experiencia de usuario antes de codificar.
 
-Fecha de Evaluación
+#### ⚠️ Debilidades Clave y Lecciones Aprendidas
 
-12 de Noviembre de 2025
+| Lección Aprendida | Análisis de la Debilidad | Fase de Impacto |
+|-------------------|--------------------------|-----------------|
+| **🔄 Gestión de Versiones de Código** | La baja frecuencia de commits (semanal) fue una práctica de alto riesgo que generó conflictos de merge complejos, desperdiciando tiempo en la integración. | Codificación / Integración |
+| **🐛 Prevención de Defectos** | La ausencia de una Revisión de Código formal por un par técnico y el escaso énfasis en Pruebas Unitarias del backend (Django) fueron las causas principales de los 40 defectos encontrados en QA. | Codificación / Pruebas |
+| **📐 Formalización del Diseño** | La falta de un Diagrama UML o Modelo Entidad-Relación formal en la planificación dificultó la validación temprana de la estructura de datos, impactando negativamente en la codificación del backend. | Planificación / Diseño |
 
-Proyecto Evaluado
+---
 
-TurboEmpleo (Plataforma de Conexión Laboral)
+### 🚀 Plan Personal de Mejora del Proceso (PPIP)
 
-Lenguaje / Herramienta
+**Objetivo Principal:** Reducir la Densidad de Defectos de 3.33 a menos de 2.0 defectos/KLOC y mejorar la disciplina de gestión de versiones.
 
-Python/Django, React, Tailwind CSS
+| Área de Mejora | Acción Específica | Objetivo | Métrica de Seguimiento |
+|----------------|-------------------|----------|------------------------|
+| **🔄 Gestión de Versiones** | Establecer y cumplir el estándar de 1-3 commits diarios con mensajes claros y atómicos. | Reducir el tiempo perdido en conflictos de merge | Promedio de commits por día laborable |
+| **💎 Calidad del Código** | Implementar la Revisión de Código obligatoria (Pull Request) de un par técnico antes de cualquier merge. | Reducir la Densidad de Defectos a < 2.0 defectos/KLOC | Densidad de Defectos (defectos/KLOC) |
+| **📐 Diseño y Planificación** | Incluir la creación de un Diagrama UML de Clases y Modelo Entidad-Relación para el backend antes de comenzar la codificación. | Asegurar que el 100% de los requisitos de datos sean validados en la fase de diseño | Porcentaje de requisitos validados en diseño |
+| **🧪 Pruebas** | Aumentar la cobertura de Pruebas Unitarias para la lógica de negocio del backend (Django). | Elevar la Cobertura de Pruebas Unitarias a un mínimo del 80% | Cobertura de Pruebas Unitarias (%) |
 
-Centro
+---
 
-CGMLTI - SENA
+### 📝 Conclusión PSP
 
-2. Resumen de Métricas Cuantitativas (Data del Proyecto)
+El proyecto **TurboEmpleo**, evaluado bajo el marco PSP, fue una experiencia de alto aprendizaje. Demostré una capacidad excepcional para estimar el esfuerzo, pero la calidad inicial del código se vio comprometida por debilidades en la gestión de versiones y la ausencia de revisión por pares. 
 
-Métrica
+**Aprendizaje clave:** La velocidad no debe sacrificar la disciplina. En futuros proyectos, aplicaré la lección de la disciplina diaria de commits y haré de la revisión de código un paso no negociable para asegurar que la Densidad de Defectos caiga por debajo de 2.0, consolidando un proceso de desarrollo más maduro y de mayor calidad.
 
-Estimado
-
-Real
-
-Desviación (%)
-
-Observaciones
-
-Tamaño Total (KLOC)
-
-10 KLOC
-
-12 KLOC
-
-+20.0%
-
-Se añadieron funcionalidades al módulo de chat (Scope Creep).
-
-Tiempo Invertido (horas)
-
-960 horas
-
-955 horas
-
--0.52%
-
-Alta precisión en la estimación del esfuerzo.
-
-Productividad (LOC/hora)
-
-10.4 LOC/h
-
-12.5 LOC/h
-
-N/A
-
-Buena productividad para la complejidad del proyecto.
-
-Defectos Totales
-
-N/A
-
-40
-
-N/A
-
-Defectos encontrados en Pruebas y Post-Codificación.
-
-Densidad de Defectos
-
-N/A
-
-3.33 defectos / KLOC
-
-N/A
-
-Meta de calidad a reducir en el próximo ciclo.
-
-3. Análisis de Desempeño y Diagnóstico
-
-3.1. Fortalezas del Proceso Personal
-
-Estimación Precisa: El esfuerzo fue estimado con una desviación mínima (-0.52%), demostrando solidez en la fase de planificación.
-
-Calidad en la Detección: Uso efectivo de Pruebas Automatizadas (Selenium/Locust) para detectar defectos complejos (concurrencia, carga).
-
-Automatización: La implementación de CI/CD aceleró el despliegue y redujo los errores en la entrega final.
-
-Enfoque UX: Uso de Figma para refinar la interfaz y experiencia de usuario antes de codificar.
-
-3.2. Debilidades Clave y Lecciones Aprendidas
-
-Lección Aprendida
-
-Análisis de la Debilidad
-
-Fase de Impacto
-
-Lección 1: Gestión de Versiones de Código
-
-La baja frecuencia de commits (semanal) fue una práctica de alto riesgo que generó conflictos de merge complejos, desperdiciando tiempo en la integración.
-
-Codificación / Integración
-
-Lección 2: Prevención de Defectos
-
-La ausencia de una Revisión de Código formal por un par técnico y el escaso énfasis en Pruebas Unitarias del backend (Django) fueron las causas principales de los 40 defectos encontrados en QA.
-
-Codificación / Pruebas
-
-Lección 3: Formalización del Diseño
-
-La falta de un Diagrama UML o Modelo Entidad-Relación formal en la planificación dificultó la validación temprana de la estructura de datos, impactando negativamente en la codificación del backend.
-
-Planificación / Diseño
-
-4. Plan Personal de Mejora del Proceso (PPIP)
-
-El objetivo es reducir la Densidad de Defectos de 3.33 a menos de 2.0 defectos/KLOC y mejorar la disciplina de gestión de versiones.
-
-Área de Mejora
-
-Acción Específica
-
-Objetivo
-
-Métrica de Seguimiento
-
-Gestión de Versiones
-
-Establecer y cumplir el estándar de 1-3 commits diarios con mensajes claros y atómicos.
-
-Reducir el tiempo perdido en conflictos de merge.
-
-Promedio de commits por día laborable.
-
-Calidad del Código
-
-Implementar la Revisión de Código obligatoria (Pull Request) de un par técnico antes de cualquier merge.
-
-Reducir la Densidad de Defectos a < 2.0 defectos/KLOC.
-
-Densidad de Defectos (defectos / KLOC).
-
-Diseño y Planificación
-
-Incluir la creación de un Diagrama UML de Clases y Modelo Entidad-Relación para el backend antes de comenzar la codificación.
-
-Asegurar que el 100% de los requisitos de datos sean validados en la fase de diseño.
-
-Porcentaje de requisitos de datos validados en diseño.
-
-Pruebas
-
-Aumentar la cobertura de Pruebas Unitarias para la lógica de negocio del backend (Django).
-
-Elevar la Cobertura de Pruebas Unitarias a un mínimo del 80% de la lógica de negocio.
-
-Cobertura de Pruebas Unitarias (%) (medida por herramienta).
-
-5. Conclusión PSP
-
-El proyecto TurboEmpleo, evaluado bajo el marco PSP, fue una experiencia de alto aprendizaje. Demostré una capacidad excepcional para estimar el esfuerzo, pero la calidad inicial del código se vio comprometida por debilidades en la gestión de versiones y la ausencia de revisión por pares. La principal conclusión es que la velocidad no debe sacrificar la disciplina. En futuros proyectos, aplicaré la lección de la disciplina diaria de commits y haré de la revisión de código un paso no negociable para asegurar que la Densidad de Defectos caiga por debajo de 2.0, consolidando un proceso de desarrollo más maduro y de mayor calidad.
+---
 
 ## 👥 Contribuir al Proyecto
 
