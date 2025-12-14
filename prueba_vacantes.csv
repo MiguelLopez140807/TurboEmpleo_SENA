@@ -1,0 +1,4 @@
+empresa_id,nombre,descripcion,ubicacion,salario,experiencia,tipo_contrato,modalidad,habilidades,beneficios
+1,Desarrollador Python,Desarrollo de aplicaciones web con Django y React,Bogotá,3500000,Junior,Indefinido,Presencial,Python;Django;React,Seguro médico;Auxilios educativos
+1,Analista de Datos,Análisis de datos y creación de dashboards,Medellín,4000000,Semi-senior,Indefinido,Híbrido,Python;SQL;Power BI,Seguro médico;Horarios flexibles
+1,Diseñador UX/UI,Diseño de interfaces de usuario y experiencia,Cali,3200000,Junior,Término fijo,Remoto,Figma;Adobe XD;Sketch,Seguro médico;Capacitaciones

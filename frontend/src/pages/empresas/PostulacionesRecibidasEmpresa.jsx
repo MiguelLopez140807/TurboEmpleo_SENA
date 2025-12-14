@@ -21,6 +21,11 @@ function PostulacionesRecibidasEmpresa() {
     const [vistaAgrupada, setVistaAgrupada] = useState(true);
     const [aspiranteSeleccionado, setAspiranteSeleccionado] = useState(null);
     const [modalAbierto, setModalAbierto] = useState(false);
+    
+    // Estados para paginación
+    const [paginaActual, setPaginaActual] = useState(1);
+    const postulacionesPorPagina = 4;
+    
     const token = localStorage.getItem("token");
     const navigate = useNavigate();
 
@@ -179,7 +184,31 @@ function PostulacionesRecibidasEmpresa() {
         setAspiranteSeleccionado(null);
     };
 
-    const postulacionesAgrupadas = vistaAgrupada ? postulaciones.reduce((acc, post) => {
+    // Cálculos de paginación
+    const indiceUltimaPostulacion = paginaActual * postulacionesPorPagina;
+    const indicePrimeraPostulacion = indiceUltimaPostulacion - postulacionesPorPagina;
+    const postulacionesActuales = postulaciones.slice(indicePrimeraPostulacion, indiceUltimaPostulacion);
+    const totalPaginas = Math.ceil(postulaciones.length / postulacionesPorPagina);
+
+    // Funciones de paginación
+    const irAPaginaSiguiente = () => {
+        if (paginaActual < totalPaginas) {
+            setPaginaActual(paginaActual + 1);
+        }
+    };
+
+    const irAPaginaAnterior = () => {
+        if (paginaActual > 1) {
+            setPaginaActual(paginaActual - 1);
+        }
+    };
+
+    // Resetear página cuando cambien los filtros
+    React.useEffect(() => {
+        setPaginaActual(1);
+    }, [filtroEstado, filtroVacante, filtroBusqueda, filtroFechaDesde, filtroFechaHasta, filtroTurbo, ordenamiento]);
+
+    const postulacionesAgrupadas = vistaAgrupada ? postulacionesActuales.reduce((acc, post) => {
         const vacanteId = post.pos_vacante_fk?.id;
         if (!vacanteId) return acc;
         
@@ -645,7 +674,7 @@ function PostulacionesRecibidasEmpresa() {
                     </div>
                 ) : (
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full max-w-6xl">
-                        {postulaciones.map((post) => {
+                        {postulacionesActuales.map((post) => {
                             const aspirante = post.pos_aspirante_fk;
                             const vacante = post.pos_vacante_fk;
                             return (
@@ -732,6 +761,70 @@ function PostulacionesRecibidasEmpresa() {
                                 </div>
                             );
                         })}
+                    </div>
+                )}
+                
+                {/* Controles de paginación */}
+                {postulaciones.length > postulacionesPorPagina && (
+                    <div className="mt-8 flex flex-col sm:flex-row justify-between items-center gap-4 bg-white rounded-lg shadow p-4 w-full max-w-6xl">
+                        <div className="text-sm text-gray-600">
+                            Mostrando {Math.min(indicePrimeraPostulacion + 1, postulaciones.length)} - {Math.min(indiceUltimaPostulacion, postulaciones.length)} de {postulaciones.length} postulaciones
+                        </div>
+                        
+                        <div className="flex items-center gap-2">
+                            <button
+                                onClick={irAPaginaAnterior}
+                                disabled={paginaActual === 1}
+                                className={`px-4 py-2 rounded-lg border transition-colors ${
+                                    paginaActual === 1
+                                        ? 'bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed'
+                                        : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
+                                }`}
+                            >
+                                Anterior
+                            </button>
+                            
+                            <div className="flex items-center gap-2">
+                                {Array.from({ length: Math.min(5, totalPaginas) }, (_, index) => {
+                                    let pagina;
+                                    if (totalPaginas <= 5) {
+                                        pagina = index + 1;
+                                    } else if (paginaActual <= 3) {
+                                        pagina = index + 1;
+                                    } else if (paginaActual >= totalPaginas - 2) {
+                                        pagina = totalPaginas - 4 + index;
+                                    } else {
+                                        pagina = paginaActual - 2 + index;
+                                    }
+                                    
+                                    return (
+                                        <button
+                                            key={pagina}
+                                            onClick={() => setPaginaActual(pagina)}
+                                            className={`w-10 h-10 rounded-lg border transition-colors ${
+                                                paginaActual === pagina
+                                                    ? 'bg-[#A67AFF] text-white border-[#A67AFF]'
+                                                    : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
+                                            }`}
+                                        >
+                                            {pagina}
+                                        </button>
+                                    );
+                                })}
+                            </div>
+                            
+                            <button
+                                onClick={irAPaginaSiguiente}
+                                disabled={paginaActual === totalPaginas}
+                                className={`px-4 py-2 rounded-lg border transition-colors ${
+                                    paginaActual === totalPaginas
+                                        ? 'bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed'
+                                        : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
+                                }`}
+                            >
+                                Siguiente
+                            </button>
+                        </div>
                     </div>
                 )}
             </div>

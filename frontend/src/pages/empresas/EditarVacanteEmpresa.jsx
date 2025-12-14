@@ -24,12 +24,29 @@ function EditarVacanteEmpresa() {
     })
         .then((res) => res.json())
         .then((data) => {
-        setForm(data);
-        setLoading(false);
+            // Formatear fechas para inputs de tipo date si existen
+            const formattedData = { ...data };
+            
+            // Si hay fecha de publicación, formatearla para input date
+            if (formattedData.va_fecha_publicacion) {
+                formattedData.va_fecha_publicacion = formattedData.va_fecha_publicacion.split('T')[0];
+            }
+            
+            // Formatear cualquier otro campo de fecha que pueda existir
+            Object.keys(formattedData).forEach(key => {
+                if (typeof formattedData[key] === 'string' && 
+                    formattedData[key].match(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/)) {
+                    formattedData[key] = formattedData[key].split('T')[0];
+                }
+            });
+            
+            setForm(formattedData);
+            setLoading(false);
         })
-        .catch(() => {
-        setError("Error al cargar la vacante.");
-        setLoading(false);
+        .catch((error) => {
+            console.error("Error al cargar la vacante:", error);
+            setError("Error al cargar la vacante. Por favor, intenta nuevamente.");
+            setLoading(false);
         });
     }, [id, token]);
 
@@ -60,12 +77,26 @@ function EditarVacanteEmpresa() {
         body: JSON.stringify(dataToSend),
         });
         if (res.ok) {
-        setSuccess("Vacante actualizada correctamente.");
-        setTimeout(() => navigate("/empresas/vacantes"), 1200);
+            setSuccess("Vacante actualizada correctamente.");
+            setTimeout(() => navigate("/empresas/vacantes"), 1200);
         } else {
-        const errorData = await res.json();
-        console.error("Error del servidor:", errorData);
-        setError("Error al actualizar la vacante.");
+            const errorData = await res.json();
+            console.error("Error del servidor:", errorData);
+            
+            // Manejar diferentes tipos de errores
+            if (res.status === 400) {
+                if (errorData.detail) {
+                    setError(errorData.detail);
+                } else if (errorData.non_field_errors) {
+                    setError(errorData.non_field_errors.join(', '));
+                } else {
+                    setError("Error de validación en los datos enviados.");
+                }
+            } else if (res.status === 404) {
+                setError("La vacante no fue encontrada.");
+            } else {
+                setError("Error al actualizar la vacante. Por favor, intenta nuevamente.");
+            }
         }
     } catch (error) {
         console.error("Error de conexión:", error);

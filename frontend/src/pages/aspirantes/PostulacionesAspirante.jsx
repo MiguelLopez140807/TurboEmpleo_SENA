@@ -15,10 +15,42 @@ function PostulacionesAspirante() {
     const userData = JSON.parse(localStorage.getItem("user_data") || "null");
     const navigate = useNavigate();
 
+    // Estados para paginación
+    const [paginaActual, setPaginaActual] = useState(1);
+    const postulacionesPorPagina = 4;
+
     const breadcrumbItems = [
         { label: 'Dashboard', path: '/aspirantes/dashboard' },
         { label: 'Mis Postulaciones', active: true }
     ];
+
+    // Cálculos de paginación
+    const postulacionesFiltradas = filtroTurbo 
+        ? postulaciones.filter(p => p.pos_es_turbo)
+        : postulaciones;
+    
+    const indiceUltimaPostulacion = paginaActual * postulacionesPorPagina;
+    const indicePrimeraPostulacion = indiceUltimaPostulacion - postulacionesPorPagina;
+    const postulacionesActuales = postulacionesFiltradas.slice(indicePrimeraPostulacion, indiceUltimaPostulacion);
+    const totalPaginas = Math.ceil(postulacionesFiltradas.length / postulacionesPorPagina);
+
+    // Funciones de paginación
+    const irAPaginaSiguiente = () => {
+        if (paginaActual < totalPaginas) {
+            setPaginaActual(paginaActual + 1);
+        }
+    };
+
+    const irAPaginaAnterior = () => {
+        if (paginaActual > 1) {
+            setPaginaActual(paginaActual - 1);
+        }
+    };
+
+    // Resetear página cuando cambie el filtro
+    useEffect(() => {
+        setPaginaActual(1);
+    }, [filtroTurbo]);
 
     useEffect(() => {
         if (!userData?.id) return;
@@ -77,11 +109,7 @@ function PostulacionesAspirante() {
                         </div>
                         
                         <div className="mb-4 text-gray-700">
-                            Total de postulaciones: <span className="font-bold">
-                                {filtroTurbo 
-                                    ? postulaciones.filter(p => p.pos_es_turbo).length 
-                                    : postulaciones.length}
-                            </span>
+                            Total de postulaciones: <span className="font-bold">{postulacionesFiltradas.length}</span>
                             {filtroTurbo && (
                                 <span className="ml-2 text-sm text-gray-500">
                                     (filtrando solo turbo)
@@ -89,16 +117,18 @@ function PostulacionesAspirante() {
                             )}
                         </div>
                         <div className="grid grid-cols-1 gap-6">
-                            {postulaciones
-                                .filter(post => !filtroTurbo || post.pos_es_turbo)
-                                .length === 0 ? (
-                                    <div className="bg-white rounded-xl shadow p-8 text-center">
-                                        <p className="text-gray-600 mb-2">No tienes postulaciones turbo.</p>
-                                        <p className="text-sm text-gray-500">Busca vacantes con el badge ⚡ Turbo para obtener respuestas rápidas.</p>
-                                    </div>
-                                ) : postulaciones
-                                .filter(post => !filtroTurbo || post.pos_es_turbo)
-                                .map((post) => {
+                            {postulacionesActuales.length === 0 ? (
+                                <div className="bg-white rounded-xl shadow p-8 text-center">
+                                    <p className="text-gray-600 mb-2">
+                                        {filtroTurbo ? "No tienes postulaciones turbo." : "No tienes postulaciones."}
+                                    </p>
+                                    <p className="text-sm text-gray-500">
+                                        {filtroTurbo 
+                                            ? "Busca vacantes con el badge ⚡ Turbo para obtener respuestas rápidas."
+                                            : "Ve a las vacantes disponibles para aplicar a trabajos."}
+                                    </p>
+                                </div>
+                            ) : postulacionesActuales.map((post) => {
                                 const vac = post.pos_vacante_fk;
                                 const empresa = vac && vac.va_idEmpresa_fk;
                                 
@@ -201,6 +231,70 @@ function PostulacionesAspirante() {
                                 );
                             })}
                         </div>
+                        
+                        {/* Controles de paginación */}
+                        {postulacionesFiltradas.length > postulacionesPorPagina && (
+                            <div className="mt-8 flex flex-col sm:flex-row justify-between items-center gap-4 bg-white rounded-lg shadow p-4">
+                                <div className="text-sm text-gray-600">
+                                    Mostrando {Math.min(indicePrimeraPostulacion + 1, postulacionesFiltradas.length)} - {Math.min(indiceUltimaPostulacion, postulacionesFiltradas.length)} de {postulacionesFiltradas.length} postulaciones
+                                </div>
+                                
+                                <div className="flex items-center gap-2">
+                                    <button
+                                        onClick={irAPaginaAnterior}
+                                        disabled={paginaActual === 1}
+                                        className={`px-4 py-2 rounded-lg border transition-colors ${
+                                            paginaActual === 1
+                                                ? 'bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed'
+                                                : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
+                                        }`}
+                                    >
+                                        Anterior
+                                    </button>
+                                    
+                                    <div className="flex items-center gap-2">
+                                        {Array.from({ length: Math.min(5, totalPaginas) }, (_, index) => {
+                                            let pagina;
+                                            if (totalPaginas <= 5) {
+                                                pagina = index + 1;
+                                            } else if (paginaActual <= 3) {
+                                                pagina = index + 1;
+                                            } else if (paginaActual >= totalPaginas - 2) {
+                                                pagina = totalPaginas - 4 + index;
+                                            } else {
+                                                pagina = paginaActual - 2 + index;
+                                            }
+                                            
+                                            return (
+                                                <button
+                                                    key={pagina}
+                                                    onClick={() => setPaginaActual(pagina)}
+                                                    className={`w-10 h-10 rounded-lg border transition-colors ${
+                                                        paginaActual === pagina
+                                                            ? 'bg-[#A67AFF] text-white border-[#A67AFF]'
+                                                            : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
+                                                    }`}
+                                                >
+                                                    {pagina}
+                                                </button>
+                                            );
+                                        })}
+                                    </div>
+                                    
+                                    <button
+                                        onClick={irAPaginaSiguiente}
+                                        disabled={paginaActual === totalPaginas}
+                                        className={`px-4 py-2 rounded-lg border transition-colors ${
+                                            paginaActual === totalPaginas
+                                                ? 'bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed'
+                                                : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
+                                        }`}
+                                    >
+                                        Siguiente
+                                    </button>
+                                </div>
+                            </div>
+                        )}
                     </div>
                 )}
             </div>

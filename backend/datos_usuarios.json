@@ -1,0 +1,904 @@
+[
+{
+  "model": "usuarios.rol",
+  "pk": 1,
+  "fields": {
+    "rol_nombre": "Aspirante"
+  }
+},
+{
+  "model": "usuarios.rol",
+  "pk": 2,
+  "fields": {
+    "rol_nombre": "Empresa"
+  }
+},
+{
+  "model": "usuarios.aspirante",
+  "pk": 1,
+  "fields": {
+    "asp_nombre": "Miguel Angel",
+    "asp_apellido": "Lopez Leon",
+    "asp_correo": "miguelo140807@gmail.com",
+    "asp_telefono": "3214619970",
+    "asp_departamento": "Cundinamarca",
+    "asp_ciudad": "Bogotá D.C",
+    "asp_ocupacion": "Programador",
+    "asp_nacimiento_dia": 14,
+    "asp_nacimiento_mes": 8,
+    "asp_nacimiento_anio": 2007,
+    "asp_tipoId": "CC",
+    "asp_numeroId": "1021675279",
+    "asp_cargo": "Tecnologo en desarrollo de software",
+    "asp_descripcion": "Recién graduado en Ingeniería de Sistemas con énfasis en análisis SQL y Power BI. Busco mi primera experiencia.",
+    "asp_idiomas": [
+      "Español (Nativo)",
+      "Inglés"
+    ],
+    "asp_estado": "activo",
+    "asp_curriculum": "curriculums/Actividad___General___Microsoft_Teams.pdf",
+    "asp_foto": "fotos_aspirantes/101010.jpg",
+    "asp_usuario_fk": 2,
+    "asp_fecha_registro": "2025-12-14T04:44:26.374Z",
+    "asp_creditos_turbo_disponibles": 1,
+    "asp_creditos_turbo_usados": 2
+  }
+},
+{
+  "model": "usuarios.aspirante",
+  "pk": 2,
+  "fields": {
+    "asp_nombre": "Valeria",
+    "asp_apellido": "Pinzon",
+    "asp_correo": "valeriap10@gmail.com",
+    "asp_telefono": "3211515155",
+    "asp_departamento": "Cundinamarca",
+    "asp_ciudad": "Bgootá D.C",
+    "asp_ocupacion": "Medica",
+    "asp_nacimiento_dia": 10,
+    "asp_nacimiento_mes": 12,
+    "asp_nacimiento_anio": 2007,
+    "asp_tipoId": "CC",
+    "asp_numeroId": "102172121",
+    "asp_cargo": "Medicina en Ginecologia",
+    "asp_descripcion": "Muy buena, y cura enfermedades peligrosas",
+    "asp_idiomas": [
+      "Español (Nativo)",
+      "Inglés"
+    ],
+    "asp_estado": "activo",
+    "asp_curriculum": "curriculums/TurboEmpleo_Calidad_xTg6VoO.pdf",
+    "asp_foto": "fotos_aspirantes/20241003_124455.jpg",
+    "asp_usuario_fk": 5,
+    "asp_fecha_registro": "2025-12-14T05:10:09.521Z",
+    "asp_creditos_turbo_disponibles": 2,
+    "asp_creditos_turbo_usados": 1
+  }
+},
+{
+  "model": "usuarios.empresa",
+  "pk": 1,
+  "fields": {
+    "em_nombre": "Vecol",
+    "em_nit": "9001234567",
+    "em_email": "vecol@gmail.com",
+    "em_telefono": "6015551122",
+    "em_departamento": "Cundinamarca",
+    "em_ciudad": "Bogotá D.C",
+    "em_sector": "Tecnología / Desarrollo de Software",
+    "em_contacto": "Andrés Rojas",
+    "em_password": "Vecol1234",
+    "em_descripcion": "Líderes en soluciones de IA y desarrollo de aplicaciones móviles a medida para el sector financiero",
+    "em_sitioWeb": "https://vecol.com",
+    "em_tamano": "11-50",
+    "em_direccion": "Cra 80 #12-21 sur",
+    "em_idiomas": [
+      "Español (Nativo)",
+      "Inglés"
+    ],
+    "em_curriculum": "empresas_docs/Base_final_direcciones_dÃ_a_comercial.pdf",
+    "em_logo": "logos_empresas/unnamed.webp",
+    "em_usuario_fk": 3,
+    "em_fecha_registro": "2025-12-14T04:44:26.437Z",
+    "em_score_turbo": 5.0,
+    "em_total_postulaciones_turbo": 2,
+    "em_respuestas_a_tiempo": 0
+  }
+},
+{
+  "model": "usuarios.empresa",
+  "pk": 2,
+  "fields": {
+    "em_nombre": "Coca-Cola",
+    "em_nit": "8903000001",
+    "em_email": "contratacion.co@cocacola-femsa.com",
+    "em_telefono": "6015559900",
+    "em_departamento": "Cundinamarcaaa",
+    "em_ciudad": "Tocancipá",
+    "em_sector": "Bebidas / Consumo Masivo",
+    "em_contacto": "Javier Restrepo",
+    "em_password": "cocacola1234",
+    "em_descripcion": "Líder mundial en la producción, distribución y venta de la marca Coca-Cola y otros productos asociados en Colombia.",
+    "em_sitioWeb": "https://www.coca-cola-femsa.com.co",
+    "em_tamano": "51-200",
+    "em_direccion": "Cra 80 #12-21 sur",
+    "em_idiomas": [
+      "Español (Nativo)",
+      "Inglés"
+    ],
+    "em_curriculum": "empresas_docs/Actividad___General___Microsoft_Teams.pdf",
+    "em_logo": "logos_empresas/images.png",
+    "em_usuario_fk": 6,
+    "em_fecha_registro": "2025-12-14T05:24:43.765Z",
+    "em_score_turbo": 5.0,
+    "em_total_postulaciones_turbo": 1,
+    "em_respuestas_a_tiempo": 0
+  }
+},
+{
+  "model": "usuarios.empresa",
+  "pk": 3,
+  "fields": {
+    "em_nombre": "Panamericana",
+    "em_nit": "8605002005",
+    "em_email": "talentopanam@gmail.com",
+    "em_telefono": "6015553300",
+    "em_departamento": "Cundinamarca",
+    "em_ciudad": "Bogotá D.C",
+    "em_sector": "Retail / Comercio de Libros y Artículos de Oficina",
+    "em_contacto": "Luisa Martínez",
+    "em_password": "pana1234",
+    "em_descripcion": "Cadena de librerías y papelerías con amplio catálogo, especializada en la distribución de material educativo, tecnológico y artístico.",
+    "em_sitioWeb": "https://www.panamericana.com.co",
+    "em_tamano": "1-10",
+    "em_direccion": "Calle 15 # 6-30, Sede Administrativa",
+    "em_idiomas": [
+      "Inglés",
+      "Portugués",
+      "Español (Nativo)"
+    ],
+    "em_curriculum": "empresas_docs/Alistamiento_para_la_Fase_de_Desarrollo_Parte_II_Miguel_Lopez.pdf",
+    "em_logo": "logos_empresas/images_1.png",
+    "em_usuario_fk": 7,
+    "em_fecha_registro": "2025-12-14T05:47:39.942Z",
+    "em_score_turbo": 5.0,
+    "em_total_postulaciones_turbo": 1,
+    "em_respuestas_a_tiempo": 0
+  }
+},
+{
+  "model": "usuarios.empresa",
+  "pk": 4,
+  "fields": {
+    "em_nombre": "Arturo Calle",
+    "em_nit": "8600004009",
+    "em_email": "empleoAC@gmail.com",
+    "em_telefono": "6045557700",
+    "em_departamento": "Antioquia",
+    "em_ciudad": "Medellín",
+    "em_sector": "Moda / Confección y Retail",
+    "em_contacto": "Juan David Estrada",
+    "em_password": "arturo1234",
+    "em_descripcion": "Empresa colombiana líder en el diseño, producción y comercialización de moda masculina de alta calidad y trayectoria.",
+    "em_sitioWeb": "https://www.arturocalle.com",
+    "em_tamano": "201-500",
+    "em_direccion": "Carrera 43A # 7 sur-100, Sede Principal",
+    "em_idiomas": [
+      "Español (Nativo)",
+      "Alemán"
+    ],
+    "em_curriculum": "empresas_docs/Actividad___General___Microsoft_Teams_6TTHumz.pdf",
+    "em_logo": "logos_empresas/images_2.png",
+    "em_usuario_fk": 8,
+    "em_fecha_registro": "2025-12-14T05:51:37.743Z",
+    "em_score_turbo": 2.5,
+    "em_total_postulaciones_turbo": 3,
+    "em_respuestas_a_tiempo": 1
+  }
+},
+{
+  "model": "usuarios.empresa",
+  "pk": 5,
+  "fields": {
+    "em_nombre": "Juan Valdez",
+    "em_nit": "8304507000",
+    "em_email": "recursos.humanosJV@gmail.com",
+    "em_telefono": "6015551010",
+    "em_departamento": "Cundinamarca",
+    "em_ciudad": "Bogotá",
+    "em_sector": "Alimentos / Cafeterías y Retail",
+    "em_contacto": "Carolina Peña",
+    "em_password": "juan1234",
+    "em_descripcion": "Cadena de café que representa a las familias caficultoras colombianas, ofreciendo café premium a nivel nacional e internacional.",
+    "em_sitioWeb": "https://www.juanvaldezcafe.com",
+    "em_tamano": "11-50",
+    "em_direccion": "Calle 73 # 9-42, Oficinas Centrales",
+    "em_idiomas": [
+      "Español (Nativo)",
+      "Portugués"
+    ],
+    "em_curriculum": "empresas_docs/Manual_de_marca.pdf",
+    "em_logo": "logos_empresas/images.jpg",
+    "em_usuario_fk": 9,
+    "em_fecha_registro": "2025-12-14T05:56:45.468Z",
+    "em_score_turbo": 5.0,
+    "em_total_postulaciones_turbo": 0,
+    "em_respuestas_a_tiempo": 0
+  }
+},
+{
+  "model": "usuarios.usuarios",
+  "pk": 2,
+  "fields": {
+    "password": "pbkdf2_sha256$1200000$mKjwoL1euFX0zWfqQGL2UL$brQpLfWuEOzNC+xGUAnMI7RajYOABEkjy4Lpf2v0jko=",
+    "is_superuser": false,
+    "user_nombre": "MiguelitoMillos",
+    "user_rol_fk": 1,
+    "email": "miguelo140807@gmail.com",
+    "is_active": true,
+    "is_staff": false,
+    "date_joined": "2025-12-14T04:44:26.479Z",
+    "last_login": null,
+    "failed_login_attempts": 0,
+    "last_failed_login": null,
+    "login_blocked_until": null,
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "usuarios.usuarios",
+  "pk": 3,
+  "fields": {
+    "password": "pbkdf2_sha256$1200000$caWJ7CdfP7fh3bQ1RIqncR$/dxMYBq28rfXDVxIs2w2tLKzHYau269Tk/Sr1EoDpq8=",
+    "is_superuser": false,
+    "user_nombre": "Vecol",
+    "user_rol_fk": 2,
+    "email": "vecol@gmail.com",
+    "is_active": true,
+    "is_staff": false,
+    "date_joined": "2025-12-14T04:44:26.479Z",
+    "last_login": null,
+    "failed_login_attempts": 0,
+    "last_failed_login": null,
+    "login_blocked_until": null,
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "usuarios.usuarios",
+  "pk": 4,
+  "fields": {
+    "password": "pbkdf2_sha256$1200000$aAkEiOZDZGIwjDhQHlyW3H$4vf50COOCZbU7IxOv65ne7KL3We3OHoV5ylYMYh0KF8=",
+    "is_superuser": true,
+    "user_nombre": "adminTE",
+    "user_rol_fk": null,
+    "email": null,
+    "is_active": true,
+    "is_staff": true,
+    "date_joined": "2025-12-14T04:44:26.479Z",
+    "last_login": null,
+    "failed_login_attempts": 0,
+    "last_failed_login": null,
+    "login_blocked_until": null,
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "usuarios.usuarios",
+  "pk": 5,
+  "fields": {
+    "password": "pbkdf2_sha256$1000000$LuYDu9uAVzg3S31dGHqYN5$uujXwz0ZVv96zwWt4TUgksoBai85KmHnPonxjOCQWOQ=",
+    "is_superuser": false,
+    "user_nombre": "Valesita10",
+    "user_rol_fk": 1,
+    "email": "valeriap10@gmail.com",
+    "is_active": true,
+    "is_staff": false,
+    "date_joined": "2025-12-14T05:10:09.501Z",
+    "last_login": null,
+    "failed_login_attempts": 0,
+    "last_failed_login": null,
+    "login_blocked_until": null,
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "usuarios.usuarios",
+  "pk": 6,
+  "fields": {
+    "password": "pbkdf2_sha256$1000000$3qkRFeYkmkd0670YwL1wPU$VJRkjf73sAh8OcCMnSaJYntXg+cT7UlzmjwTQFZXcYk=",
+    "is_superuser": false,
+    "user_nombre": "Coca-Cola",
+    "user_rol_fk": 2,
+    "email": "contratacion.co@cocacola-femsa.com",
+    "is_active": true,
+    "is_staff": false,
+    "date_joined": "2025-12-14T05:24:43.751Z",
+    "last_login": null,
+    "failed_login_attempts": 0,
+    "last_failed_login": null,
+    "login_blocked_until": null,
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "usuarios.usuarios",
+  "pk": 7,
+  "fields": {
+    "password": "pbkdf2_sha256$1000000$ABK2O6oUuMR7yZCbuthpM9$C+tAAUyuRUvWloPO2Z1xuojK0KLTnktGucAQnLSPA0s=",
+    "is_superuser": false,
+    "user_nombre": "Panamericana",
+    "user_rol_fk": 2,
+    "email": "talentopanam@gmail.com",
+    "is_active": true,
+    "is_staff": false,
+    "date_joined": "2025-12-14T05:47:39.928Z",
+    "last_login": null,
+    "failed_login_attempts": 0,
+    "last_failed_login": null,
+    "login_blocked_until": null,
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "usuarios.usuarios",
+  "pk": 8,
+  "fields": {
+    "password": "pbkdf2_sha256$1000000$KFs5mKKGY9M5ienWIDlUCL$XQLEqxQ5etpMCidlJvL0PQ2focaqSdXR5C6gyxdk/ak=",
+    "is_superuser": false,
+    "user_nombre": "Arturo Calle",
+    "user_rol_fk": 2,
+    "email": "empleoAC@gmail.com",
+    "is_active": true,
+    "is_staff": false,
+    "date_joined": "2025-12-14T05:51:37.737Z",
+    "last_login": null,
+    "failed_login_attempts": 0,
+    "last_failed_login": null,
+    "login_blocked_until": null,
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "usuarios.usuarios",
+  "pk": 9,
+  "fields": {
+    "password": "pbkdf2_sha256$1000000$ojfqpvua16QI74IAqJc8vX$54xyDiU0goREy7WJT5IZ8gyl6JCzQQEmu9fxW+dZ2bA=",
+    "is_superuser": false,
+    "user_nombre": "Juan Valdez",
+    "user_rol_fk": 2,
+    "email": "recursos.humanosJV@gmail.com",
+    "is_active": true,
+    "is_staff": false,
+    "date_joined": "2025-12-14T05:56:45.453Z",
+    "last_login": null,
+    "failed_login_attempts": 0,
+    "last_failed_login": null,
+    "login_blocked_until": null,
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "usuarios.vacante",
+  "pk": 1,
+  "fields": {
+    "va_titulo": "Desarrollador Front-End Senior (React)",
+    "va_requisitos": "5+ años de experiencia en desarrollo web. Dominio de React, Redux, Hooks y Testing (Jest/Enzyme).",
+    "va_salario": "5500000.00",
+    "va_ubicacion": "Bogotá, Cundinamarca",
+    "va_descripcion": "Buscamos un experto para liderar el desarrollo de interfaces de usuario escalables utilizando React y TypeScript.",
+    "va_tipo_empleo": "Medio tiempo",
+    "va_responsabilidades": "Liderar sprints, asegurar la calidad del código, mentorizar a desarrolladores junior, y optimizar el rendimiento de la aplicación.",
+    "va_beneficios": "Bono anual por desempeño, plan de salud premium, horario flexible, $500.000 COP mensuales para capacitación.",
+    "va_habilidades": "React, JavaScript (ES6+), TypeScript, HTML5/CSS3, Git.",
+    "va_estado": "Activa",
+    "va_idEmpresa_fk": 1,
+    "va_fecha_publicacion": "2025-12-13T20:18:38.578Z",
+    "va_modo_turbo": false,
+    "va_tiempo_respuesta_horas": 48
+  }
+},
+{
+  "model": "usuarios.vacante",
+  "pk": 2,
+  "fields": {
+    "va_titulo": "Gerente de Proyectos Bilingüe",
+    "va_requisitos": "Certificación PMP o Scrum Master. 5+ años de experiencia gestionando proyectos de gran escala. Inglés C1/C2 (Excluyente).",
+    "va_salario": "7800000.00",
+    "va_ubicacion": "Bogotá, Cundinamarca",
+    "va_descripcion": "Liderar la planeación, ejecución y cierre de proyectos estratégicos de TI, asegurando el cumplimiento de plazos y presupuestos.",
+    "va_tipo_empleo": "Tiempo completo",
+    "va_responsabilidades": "Coordinar equipos multidisciplinarios, gestionar riesgos, comunicación con stakeholders y elaboración de reportes de progreso.",
+    "va_beneficios": "Bono anual por cumplimiento de objetivos (hasta 2 salarios), plan de desarrollo profesional, membresía en gimnasio.",
+    "va_habilidades": "Gestión de Proyectos, Scrum, PMI, Inglés Fluido, Liderazgo.",
+    "va_estado": "Activa",
+    "va_idEmpresa_fk": 4,
+    "va_fecha_publicacion": "2025-12-14T06:27:30.945Z",
+    "va_modo_turbo": true,
+    "va_tiempo_respuesta_horas": 24
+  }
+},
+{
+  "model": "usuarios.vacante",
+  "pk": 3,
+  "fields": {
+    "va_titulo": "Diseñador UX/UI",
+    "va_requisitos": "3 años de experiencia comprobada en diseño UX/UI. Dominio de herramientas de prototipado (Figma/Sketch). Sólido portafolio.",
+    "va_salario": "4500000.00",
+    "va_ubicacion": "Bogotá, Cundinamarca",
+    "va_descripcion": "Diseñar y optimizar la experiencia de usuario e interfaces para nuestra aplicación móvil y plataforma web, basados en pruebas e investigación.",
+    "va_tipo_empleo": "Híbrido",
+    "va_responsabilidades": "Crear wireframes, prototipos de alta fidelidad, realizar pruebas de usabilidad y colaborar con el equipo de desarrollo.",
+    "va_beneficios": "Flexibilidad horaria, auxilio para mobiliario de oficina en casa, días libres adicionales por cumplimiento.",
+    "va_habilidades": "Figma, Diseño Centrado en el Usuario (DCU), Prototipado, Investigación de Usuarios, Diseño de Interfaz.",
+    "va_estado": "Activa",
+    "va_idEmpresa_fk": 4,
+    "va_fecha_publicacion": "2025-12-14T06:28:36.023Z",
+    "va_modo_turbo": false,
+    "va_tiempo_respuesta_horas": 48
+  }
+},
+{
+  "model": "usuarios.vacante",
+  "pk": 4,
+  "fields": {
+    "va_titulo": "Barista con Experiencia en Café Especial",
+    "va_requisitos": "1 año de experiencia como barista o en manejo de máquinas de café espresso. Conocimiento de métodos de filtrado.",
+    "va_salario": "1700000.00",
+    "va_ubicacion": "Cali, Valle del Cauca",
+    "va_descripcion": "Preparación y servicio de bebidas a base de café y atención excepcional al cliente en nuestra nueva sucursal en el centro comercial.",
+    "va_tipo_empleo": "Contrato",
+    "va_responsabilidades": "Mantener la calidad del café, manejo de caja, limpieza de equipos y mantener la barra de trabajo organizada.",
+    "va_beneficios": "Contrato a término indefinido después de 3 meses, 20% de descuento en todos los productos, horarios rotativos.",
+    "va_habilidades": "Arte Latte, Servicio al Cliente, Manejo de Máquina Espresso, Preparación de Bebidas.",
+    "va_estado": "Activa",
+    "va_idEmpresa_fk": 4,
+    "va_fecha_publicacion": "2025-12-14T06:29:18.764Z",
+    "va_modo_turbo": true,
+    "va_tiempo_respuesta_horas": 72
+  }
+},
+{
+  "model": "usuarios.vacante",
+  "pk": 5,
+  "fields": {
+    "va_titulo": "Asesor Comercial para Venta de Servicios B2B",
+    "va_requisitos": "Experiencia previa en venta de servicios B2B. Habilidad comprobada para la prospección en frío y cierre de negocios.",
+    "va_salario": "1200000.00",
+    "va_ubicacion": "Medellín, Antioquias",
+    "va_descripcion": "Generar nuevas oportunidades de negocio y gestionar la cartera de clientes corporativos para la venta de soluciones de software logístico.",
+    "va_tipo_empleo": "Remoto",
+    "va_responsabilidades": "Realizar llamadas y visitas comerciales, presentar propuestas, negociar contratos y alcanzar metas de ventas mensuales.",
+    "va_beneficios": "Horario totalmente flexible, altas comisiones por desempeño, capacitación constante en producto y técnicas de venta.",
+    "va_habilidades": "Venta B2B, Negociación, Prospección, CRM (HubSpot/Salesforce), Comunicación Persuasiva.",
+    "va_estado": "Activa",
+    "va_idEmpresa_fk": 4,
+    "va_fecha_publicacion": "2025-12-14T06:30:11.623Z",
+    "va_modo_turbo": false,
+    "va_tiempo_respuesta_horas": 48
+  }
+},
+{
+  "model": "usuarios.vacante",
+  "pk": 6,
+  "fields": {
+    "va_titulo": "Especialista SEO/SEM y Estrategia de Contenidos",
+    "va_requisitos": "4+ años de experiencia. Dominio de Google Ads, Google Analytics, y herramientas SEO (SEMrush, Ahrefs). Portafolio de resultados.",
+    "va_salario": "5100000.00",
+    "va_ubicacion": "Bogotá, Cundinamarca",
+    "va_descripcion": "Desarrollar, implementar y optimizar estrategias de posicionamiento orgánico (SEO) y pago (SEM) para aumentar el tráfico y las conversiones.",
+    "va_tipo_empleo": "",
+    "va_responsabilidades": "Realizar auditorías SEO, gestionar presupuestos de PPC, optimizar landing pages y generar informes de rendimiento detallados.",
+    "va_beneficios": "Horario flexible, bono de conectividad mensual, acceso a cursos de especialización premium.",
+    "va_habilidades": "SEO Técnico, SEM, Google Analytics 4, Content Marketing, PPC.",
+    "va_estado": "Activa",
+    "va_idEmpresa_fk": 2,
+    "va_fecha_publicacion": "2025-12-14T06:32:14.325Z",
+    "va_modo_turbo": true,
+    "va_tiempo_respuesta_horas": 24
+  }
+},
+{
+  "model": "usuarios.vacante",
+  "pk": 7,
+  "fields": {
+    "va_titulo": "Jefe de Mantenimiento Industrial",
+    "va_requisitos": "Ingeniero Mecánico o Eléctrico. Experiencia mínima de 6 años en gestión de mantenimiento preventivo, predictivo y correctivo en industria pesada.",
+    "va_salario": "6500000.00",
+    "va_ubicacion": "Cartagena, Bolívar",
+    "va_descripcion": "Supervisar y dirigir el equipo de mantenimiento, garantizando la operatividad de la maquinaria y los sistemas de la planta 24/7.",
+    "va_tipo_empleo": "Medio tiempo",
+    "va_responsabilidades": "Planificar el presupuesto de mantenimiento, gestionar el inventario de repuestos, e implementar programas de seguridad industrial.",
+    "va_beneficios": "Prima de vacaciones adicional, seguro de vida, subsidio de reubicación si aplica.",
+    "va_habilidades": "Mantenimiento Predictivo, Gestión de Activos (GMAO), Hidráulica/Neumática, Liderazgo de Equipos.",
+    "va_estado": "Activa",
+    "va_idEmpresa_fk": 2,
+    "va_fecha_publicacion": "2025-12-14T06:32:58.958Z",
+    "va_modo_turbo": false,
+    "va_tiempo_respuesta_horas": 48
+  }
+},
+{
+  "model": "usuarios.vacante",
+  "pk": 8,
+  "fields": {
+    "va_titulo": "Auxiliar Contable y de Nóminas",
+    "va_requisitos": "Técnico o tecnólogo en Contabilidad. 2 años de experiencia. Manejo avanzado del software contable SIESA (o similar).",
+    "va_salario": "2300000.00",
+    "va_ubicacion": "Bucaramanga, Santander",
+    "va_descripcion": "Apoyar el área financiera en el registro de transacciones, causación de gastos y el procesamiento mensual de la nómina.",
+    "va_tipo_empleo": "Remoto",
+    "va_responsabilidades": "Realizar conciliaciones bancarias, liquidar seguridad social, preparar comprobantes de egreso y mantener los archivos contables actualizados.",
+    "va_beneficios": "Capacitación continua en normativa NIIF, estabilidad laboral, dotación de oficina ergonómica.",
+    "va_habilidades": "Nómina y Liquidación, SIESA, NIIF, Conciliaciones Bancarias, Excel Intermedio.",
+    "va_estado": "Activa",
+    "va_idEmpresa_fk": 2,
+    "va_fecha_publicacion": "2025-12-14T06:33:39.411Z",
+    "va_modo_turbo": false,
+    "va_tiempo_respuesta_horas": 48
+  }
+},
+{
+  "model": "usuarios.vacante",
+  "pk": 9,
+  "fields": {
+    "va_titulo": "Desarrollador Python",
+    "va_requisitos": "Experiencia: Junior",
+    "va_salario": "3500000.00",
+    "va_ubicacion": "Bogotá",
+    "va_descripcion": "Desarrollo de aplicaciones web",
+    "va_tipo_empleo": "Indefinido",
+    "va_responsabilidades": null,
+    "va_beneficios": "Seguro médico, Auxilios",
+    "va_habilidades": "Python, Django, React",
+    "va_estado": "Activa",
+    "va_idEmpresa_fk": 1,
+    "va_fecha_publicacion": "2025-12-14T08:12:40.686Z",
+    "va_modo_turbo": false,
+    "va_tiempo_respuesta_horas": 48
+  }
+},
+{
+  "model": "usuarios.vacante",
+  "pk": 10,
+  "fields": {
+    "va_titulo": "Analista de Datos",
+    "va_requisitos": "Experiencia: Semi-senior",
+    "va_salario": "4200000.00",
+    "va_ubicacion": "Medellín",
+    "va_descripcion": "Análisis de datos y creación de dashboards empresariales",
+    "va_tipo_empleo": "Indefinido",
+    "va_responsabilidades": null,
+    "va_beneficios": "Seguro médico, Horarios flexibles, Capacitaciones",
+    "va_habilidades": "Python, SQL, Power BI, Excel",
+    "va_estado": "Activa",
+    "va_idEmpresa_fk": 2,
+    "va_fecha_publicacion": "2025-12-14T08:12:40.691Z",
+    "va_modo_turbo": false,
+    "va_tiempo_respuesta_horas": 48
+  }
+},
+{
+  "model": "usuarios.vacante",
+  "pk": 11,
+  "fields": {
+    "va_titulo": "Diseñador UX/UI",
+    "va_requisitos": "Experiencia: Junior",
+    "va_salario": "3800000.00",
+    "va_ubicacion": "Cali",
+    "va_descripcion": "Diseño de interfaces y experiencia de usuario para aplicaciones web",
+    "va_tipo_empleo": "Término fijo",
+    "va_responsabilidades": null,
+    "va_beneficios": "Seguro médico, Equipos de trabajo, Internet",
+    "va_habilidades": "Figma, Adobe XD, Sketch, Photoshop",
+    "va_estado": "Activa",
+    "va_idEmpresa_fk": 3,
+    "va_fecha_publicacion": "2025-12-14T08:12:40.693Z",
+    "va_modo_turbo": false,
+    "va_tiempo_respuesta_horas": 48
+  }
+},
+{
+  "model": "usuarios.vacante",
+  "pk": 12,
+  "fields": {
+    "va_titulo": "Desarrollador Frontend",
+    "va_requisitos": "Experiencia: Semi-senior",
+    "va_salario": "3700000.00",
+    "va_ubicacion": "Bogotá",
+    "va_descripcion": "Desarrollo de interfaces web responsivas y modernas",
+    "va_tipo_empleo": "Indefinido",
+    "va_responsabilidades": null,
+    "va_beneficios": "Seguro médico, Auxilios, Bonos por desempeño",
+    "va_habilidades": "React, JavaScript, HTML, CSS, TypeScript",
+    "va_estado": "Activa",
+    "va_idEmpresa_fk": 4,
+    "va_fecha_publicacion": "2025-12-14T08:12:40.695Z",
+    "va_modo_turbo": false,
+    "va_tiempo_respuesta_horas": 48
+  }
+},
+{
+  "model": "usuarios.vacante",
+  "pk": 13,
+  "fields": {
+    "va_titulo": "Administrador de Sistemas",
+    "va_requisitos": "Experiencia: Senior",
+    "va_salario": "4500000.00",
+    "va_ubicacion": "Barranquilla",
+    "va_descripcion": "Administración y mantenimiento de servidores e infraestructura",
+    "va_tipo_empleo": "Indefinido",
+    "va_responsabilidades": null,
+    "va_beneficios": "Seguro médico, Capacitaciones técnicas, Horarios flexibles",
+    "va_habilidades": "Linux, AWS, Docker, Kubernetes",
+    "va_estado": "Activa",
+    "va_idEmpresa_fk": 5,
+    "va_fecha_publicacion": "2025-12-14T08:12:40.697Z",
+    "va_modo_turbo": false,
+    "va_tiempo_respuesta_horas": 48
+  }
+},
+{
+  "model": "usuarios.vacante",
+  "pk": 14,
+  "fields": {
+    "va_titulo": "Especialista en Marketing Digital",
+    "va_requisitos": "Experiencia: Junior",
+    "va_salario": "3300000.00",
+    "va_ubicacion": "Cartagena",
+    "va_descripcion": "Gestión de campañas publicitarias y estrategias de marketing online",
+    "va_tipo_empleo": "Término fijo",
+    "va_responsabilidades": null,
+    "va_beneficios": "Seguro médico, Internet, Cursos especializados",
+    "va_habilidades": "Google Ads, Facebook Ads, Analytics, SEO",
+    "va_estado": "Activa",
+    "va_idEmpresa_fk": 2,
+    "va_fecha_publicacion": "2025-12-14T08:12:40.699Z",
+    "va_modo_turbo": false,
+    "va_tiempo_respuesta_horas": 48
+  }
+},
+{
+  "model": "usuarios.vacante",
+  "pk": 15,
+  "fields": {
+    "va_titulo": "Contador Público",
+    "va_requisitos": "Experiencia: Semi-senior",
+    "va_salario": "3000000.00",
+    "va_ubicacion": "Bucaramanga",
+    "va_descripcion": "Manejo de contabilidad general y estados financieros",
+    "va_tipo_empleo": "Indefinido",
+    "va_responsabilidades": null,
+    "va_beneficios": "Seguro médico, Auxilios educativos",
+    "va_habilidades": "Excel avanzado, NIIF, Tributaria",
+    "va_estado": "Activa",
+    "va_idEmpresa_fk": 3,
+    "va_fecha_publicacion": "2025-12-14T08:12:40.701Z",
+    "va_modo_turbo": false,
+    "va_tiempo_respuesta_horas": 48
+  }
+},
+{
+  "model": "usuarios.vacante",
+  "pk": 16,
+  "fields": {
+    "va_titulo": "Ingeniero de Software",
+    "va_requisitos": "Experiencia: Senior",
+    "va_salario": "4800000.00",
+    "va_ubicacion": "Pereira",
+    "va_descripcion": "Desarrollo y mantenimiento de sistemas empresariales",
+    "va_tipo_empleo": "Indefinido",
+    "va_responsabilidades": null,
+    "va_beneficios": "Seguro médico, Bonos, Capacitaciones, Horarios flexibles",
+    "va_habilidades": "Java, Spring Boot, MySQL, Git",
+    "va_estado": "Activa",
+    "va_idEmpresa_fk": 4,
+    "va_fecha_publicacion": "2025-12-14T08:12:40.703Z",
+    "va_modo_turbo": false,
+    "va_tiempo_respuesta_horas": 48
+  }
+},
+{
+  "model": "usuarios.postulacion",
+  "pk": 1,
+  "fields": {
+    "pos_estado": "Pendiente",
+    "pos_fechaPostulacion": "2025-12-13T20:36:28.065Z",
+    "pos_aspirante_fk": 1,
+    "pos_vacante_fk": 1,
+    "pos_es_turbo": true,
+    "pos_fecha_limite_respuesta": "2025-12-15T22:08:47.435Z",
+    "pos_respondida_a_tiempo": false,
+    "pos_turbo_solicitado_por_aspirante": true,
+    "pos_creditos_turbo_usados": 1
+  }
+},
+{
+  "model": "usuarios.postulacion",
+  "pk": 2,
+  "fields": {
+    "pos_estado": "Pendiente",
+    "pos_fechaPostulacion": "2025-12-14T05:17:39.242Z",
+    "pos_aspirante_fk": 2,
+    "pos_vacante_fk": 1,
+    "pos_es_turbo": true,
+    "pos_fecha_limite_respuesta": "2025-12-16T06:23:30.296Z",
+    "pos_respondida_a_tiempo": false,
+    "pos_turbo_solicitado_por_aspirante": true,
+    "pos_creditos_turbo_usados": 1
+  }
+},
+{
+  "model": "usuarios.postulacion",
+  "pk": 3,
+  "fields": {
+    "pos_estado": "Pendiente",
+    "pos_fechaPostulacion": "2025-12-14T06:39:22.148Z",
+    "pos_aspirante_fk": 2,
+    "pos_vacante_fk": 2,
+    "pos_es_turbo": true,
+    "pos_fecha_limite_respuesta": "2025-12-15T06:39:22.156Z",
+    "pos_respondida_a_tiempo": false,
+    "pos_turbo_solicitado_por_aspirante": false,
+    "pos_creditos_turbo_usados": 0
+  }
+},
+{
+  "model": "usuarios.postulacion",
+  "pk": 4,
+  "fields": {
+    "pos_estado": "En Revisión",
+    "pos_fechaPostulacion": "2025-12-14T06:54:43.814Z",
+    "pos_aspirante_fk": 1,
+    "pos_vacante_fk": 8,
+    "pos_es_turbo": false,
+    "pos_fecha_limite_respuesta": null,
+    "pos_respondida_a_tiempo": false,
+    "pos_turbo_solicitado_por_aspirante": false,
+    "pos_creditos_turbo_usados": 0
+  }
+},
+{
+  "model": "usuarios.postulacion",
+  "pk": 5,
+  "fields": {
+    "pos_estado": "En Revisión",
+    "pos_fechaPostulacion": "2025-12-14T06:54:59.727Z",
+    "pos_aspirante_fk": 1,
+    "pos_vacante_fk": 7,
+    "pos_es_turbo": false,
+    "pos_fecha_limite_respuesta": null,
+    "pos_respondida_a_tiempo": false,
+    "pos_turbo_solicitado_por_aspirante": false,
+    "pos_creditos_turbo_usados": 0
+  }
+},
+{
+  "model": "usuarios.postulacion",
+  "pk": 6,
+  "fields": {
+    "pos_estado": "En Revisión",
+    "pos_fechaPostulacion": "2025-12-14T06:55:10.195Z",
+    "pos_aspirante_fk": 1,
+    "pos_vacante_fk": 4,
+    "pos_es_turbo": true,
+    "pos_fecha_limite_respuesta": "2025-12-17T06:55:10.199Z",
+    "pos_respondida_a_tiempo": true,
+    "pos_turbo_solicitado_por_aspirante": false,
+    "pos_creditos_turbo_usados": 0
+  }
+},
+{
+  "model": "usuarios.postulacion",
+  "pk": 7,
+  "fields": {
+    "pos_estado": "Pendiente",
+    "pos_fechaPostulacion": "2025-12-14T06:55:17.495Z",
+    "pos_aspirante_fk": 1,
+    "pos_vacante_fk": 3,
+    "pos_es_turbo": false,
+    "pos_fecha_limite_respuesta": null,
+    "pos_respondida_a_tiempo": false,
+    "pos_turbo_solicitado_por_aspirante": false,
+    "pos_creditos_turbo_usados": 0
+  }
+},
+{
+  "model": "usuarios.postulacion",
+  "pk": 8,
+  "fields": {
+    "pos_estado": "Pendiente",
+    "pos_fechaPostulacion": "2025-12-14T07:10:39.245Z",
+    "pos_aspirante_fk": 2,
+    "pos_vacante_fk": 5,
+    "pos_es_turbo": false,
+    "pos_fecha_limite_respuesta": null,
+    "pos_respondida_a_tiempo": false,
+    "pos_turbo_solicitado_por_aspirante": false,
+    "pos_creditos_turbo_usados": 0
+  }
+},
+{
+  "model": "usuarios.postulacion",
+  "pk": 9,
+  "fields": {
+    "pos_estado": "Pendiente",
+    "pos_fechaPostulacion": "2025-12-14T07:10:47.675Z",
+    "pos_aspirante_fk": 2,
+    "pos_vacante_fk": 4,
+    "pos_es_turbo": true,
+    "pos_fecha_limite_respuesta": "2025-12-17T07:10:47.680Z",
+    "pos_respondida_a_tiempo": false,
+    "pos_turbo_solicitado_por_aspirante": false,
+    "pos_creditos_turbo_usados": 0
+  }
+},
+{
+  "model": "usuarios.postulacion",
+  "pk": 10,
+  "fields": {
+    "pos_estado": "Pendiente",
+    "pos_fechaPostulacion": "2025-12-14T07:11:09.731Z",
+    "pos_aspirante_fk": 2,
+    "pos_vacante_fk": 6,
+    "pos_es_turbo": true,
+    "pos_fecha_limite_respuesta": "2025-12-15T07:11:09.736Z",
+    "pos_respondida_a_tiempo": false,
+    "pos_turbo_solicitado_por_aspirante": false,
+    "pos_creditos_turbo_usados": 0
+  }
+},
+{
+  "model": "usuarios.postulacion",
+  "pk": 11,
+  "fields": {
+    "pos_estado": "Entrevista Programada",
+    "pos_fechaPostulacion": "2025-12-14T07:11:17.189Z",
+    "pos_aspirante_fk": 2,
+    "pos_vacante_fk": 8,
+    "pos_es_turbo": false,
+    "pos_fecha_limite_respuesta": null,
+    "pos_respondida_a_tiempo": false,
+    "pos_turbo_solicitado_por_aspirante": false,
+    "pos_creditos_turbo_usados": 0
+  }
+},
+{
+  "model": "usuarios.postulacion",
+  "pk": 12,
+  "fields": {
+    "pos_estado": "Pendiente",
+    "pos_fechaPostulacion": "2025-12-14T19:13:55.022Z",
+    "pos_aspirante_fk": 1,
+    "pos_vacante_fk": 15,
+    "pos_es_turbo": true,
+    "pos_fecha_limite_respuesta": "2025-12-16T19:14:07.284Z",
+    "pos_respondida_a_tiempo": false,
+    "pos_turbo_solicitado_por_aspirante": true,
+    "pos_creditos_turbo_usados": 1
+  }
+},
+{
+  "model": "usuarios.notificacion",
+  "pk": 1,
+  "fields": {
+    "not_usuario_fk": 3,
+    "not_contenido": "Nueva postulación de Miguel Angel Lopez Leon para la vacante 'Desarrollador Front-End Senior (React)'",
+    "not_fecha": "2025-12-13T20:36:28.071Z",
+    "not_estado": "No leída"
+  }
+},
+{
+  "model": "usuarios.notificacion",
+  "pk": 2,
+  "fields": {
+    "not_usuario_fk": 2,
+    "not_contenido": 

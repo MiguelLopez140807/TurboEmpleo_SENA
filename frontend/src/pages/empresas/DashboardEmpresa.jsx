@@ -4,7 +4,6 @@ import Footer from "../../components/footer";
 import Breadcrumbs from "../../components/Breadcrumbs";
 import { FaBuilding, FaBriefcase, FaFileAlt } from 'react-icons/fa';
 
-
 const DashboardEmpresa = () => {
     // Obtener datos de la empresa desde localStorage
     let nombre = "Empresa";

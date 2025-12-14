@@ -21,7 +21,7 @@ class Aspirante(models.Model):
     asp_nacimiento_mes = models.IntegerField(blank=True, null=True)
     asp_nacimiento_anio = models.IntegerField(blank=True, null=True)
     asp_tipoId = models.CharField(max_length=10, blank=True, null=True)
-    asp_numeroId = models.CharField(max_length=30, blank=True, null=True)
+    asp_numeroId = models.CharField(max_length=30, blank=True, null=True, unique=True)
     asp_cargo = models.CharField(max_length=100, blank=True, null=True)
     asp_descripcion = models.TextField(blank=True, null=True)
     asp_idiomas = models.JSONField(blank=True, null=True)
@@ -30,6 +30,8 @@ class Aspirante(models.Model):
     asp_foto = models.ImageField(upload_to='fotos_aspirantes/', blank=True, null=True)
     # Enlaces de clave foránea a un usuario
     asp_usuario_fk = models.ForeignKey('Usuarios', on_delete=models.CASCADE)
+    # Fecha de registro del aspirante
+    asp_fecha_registro = models.DateTimeField(auto_now_add=True, null=True, blank=True, verbose_name="Fecha de registro")
     
     # ⚡ CAMPOS MODO TURBO - CRÉDITOS DEL ASPIRANTE
     asp_creditos_turbo_disponibles = models.IntegerField(default=3, help_text="Créditos turbo disponibles para usar")
@@ -41,8 +43,8 @@ class Aspirante(models.Model):
 class Empresa(models.Model):
     # Campos de la empresa
     em_nombre = models.CharField(max_length=150)
-    em_nit = models.CharField(max_length=50, blank=True, null=True)
-    em_email = models.EmailField(blank=True, null=True)
+    em_nit = models.CharField(max_length=50, blank=True, null=True, unique=True)
+    em_email = models.EmailField(blank=True, null=True, unique=True)
     em_telefono = models.CharField(max_length=20, blank=True, null=True)
     em_departamento = models.CharField(max_length=100, blank=True, null=True)
     em_ciudad = models.CharField(max_length=100, blank=True, null=True)
@@ -57,6 +59,8 @@ class Empresa(models.Model):
     em_curriculum = models.FileField(upload_to='empresas_docs/', blank=True, null=True)
     em_logo = models.ImageField(upload_to='logos_empresas/', blank=True, null=True)
     em_usuario_fk = models.ForeignKey('Usuarios', on_delete=models.CASCADE)
+    # Fecha de registro de la empresa
+    em_fecha_registro = models.DateTimeField(auto_now_add=True, null=True, blank=True, verbose_name="Fecha de registro")
     
     # ⚡ CAMPOS MODO TURBO - SCORE Y ESTADÍSTICAS
     em_score_turbo = models.FloatField(default=5.0, help_text="Puntuación de confiabilidad (0-5)")
@@ -100,6 +104,9 @@ class Usuarios(AbstractBaseUser, PermissionsMixin):
     email = models.EmailField(unique=True, null=True, blank=True) # <-- Nuevo campo
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
+    # Campos para fechas de registro y acceso
+    date_joined = models.DateTimeField(auto_now_add=True, null=True, blank=True, verbose_name="Fecha de registro")
+    last_login = models.DateTimeField(null=True, blank=True, verbose_name="Último acceso")
     # Campos para bloqueo temporal de login
     failed_login_attempts = models.IntegerField(default=0)
     last_failed_login = models.DateTimeField(null=True, blank=True)
@@ -166,6 +173,11 @@ class Postulacion(models.Model):
     pos_respondida_a_tiempo = models.BooleanField(default=False, help_text="Indica si la empresa respondió dentro del plazo")
     pos_turbo_solicitado_por_aspirante = models.BooleanField(default=False, help_text="El aspirante activó modo turbo en esta postulación")
     pos_creditos_turbo_usados = models.IntegerField(default=0, help_text="Créditos turbo utilizados en esta postulación (0 o 1)")
+
+    class Meta:
+        unique_together = [('pos_aspirante_fk', 'pos_vacante_fk')]
+        verbose_name = 'Postulación'
+        verbose_name_plural = 'Postulaciones'
 
     def __str__(self):
         return f"{self.pos_aspirante_fk} a {self.pos_vacante_fk} ({self.pos_estado})"

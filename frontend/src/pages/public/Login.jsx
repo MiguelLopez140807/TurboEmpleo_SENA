@@ -39,13 +39,24 @@ function Login() {
         if (token) {
           localStorage.setItem("token", token);
 
+          // Verificar si es administrador
+          if (data.user && (data.user.is_superuser || data.user.is_staff)) {
+            // Es administrador
+            const adminData = {...data.user, rol_nombre: 'Administrador', user_type: 'admin'};
+            localStorage.setItem("user_data", JSON.stringify(adminData));
+            window.location.href = "/admin";
+            return;
+          }
+          
           // Detectar si es aspirante o empresa
           if (data.user && (data.user.asp_nombre || data.user.asp_email || data.user.asp_cedula)) {
             // Es aspirante
-            localStorage.setItem("user_data", JSON.stringify(data.user));
+            const aspiranteData = {...data.user, rol_nombre: 'Aspirante', user_type: 'aspirante'};
+            localStorage.setItem("user_data", JSON.stringify(aspiranteData));
           } else if (data.user && (data.user.em_nombre || data.user.em_email || data.user.em_nit)) {
             // Es empresa
-            localStorage.setItem("user_data", JSON.stringify(data.user));
+            const empresaData = {...data.user, rol_nombre: 'Empresa', user_type: 'empresa'};
+            localStorage.setItem("user_data", JSON.stringify(empresaData));
           } else {
             // Intentar buscar datos de aspirante (compatibilidad vieja)
             try {
@@ -55,8 +66,9 @@ function Login() {
               });
               const aspData = await aspRes.json();
               if (aspRes.ok && Array.isArray(aspData) && aspData.length > 0) {
-                localStorage.setItem("user_data", JSON.stringify(aspData[0]));
-                console.log('user_data guardado tras login:', aspData[0]);
+                const aspiranteData = {...aspData[0], rol_nombre: 'Aspirante', user_type: 'aspirante'};
+                localStorage.setItem("user_data", JSON.stringify(aspiranteData));
+                console.log('user_data guardado tras login:', aspiranteData);
               }
             } catch (e) { 
               console.log("No se pudieron obtener datos del usuario:", e);
@@ -64,7 +76,7 @@ function Login() {
           }
 
           // Forzar recarga para que Navbar detecte sesión
-                    window.location.href = "/dashboard";
+          window.location.href = "/dashboard";
         } else {
           setError("No se recibió token de autenticación");
         }

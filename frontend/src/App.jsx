@@ -14,9 +14,11 @@ import Contacto from './pages/public/Contacto';
 // src/App.jsx
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 
-// Layouts
+// Layouts y componentes de protección
 import Layout from './components/layout';
 import Navbar from './components/navbar';
+import ProtectedRoute from './components/ProtectedRoute';
+import PublicRoute from './components/PublicRoute';
 
 // Vistas públicas
 import LandingPage from './pages/public/LandingPage';
@@ -37,6 +39,7 @@ import PerfilEmpresa from './pages/empresas/PerfilEmpresa';
 import VacantesEmpresa from './pages/empresas/VacantesEmpresa';
 import EditarVacanteEmpresa from './pages/empresas/EditarVacanteEmpresa';
 import PostulacionesRecibidasEmpresa from './pages/empresas/PostulacionesRecibidasEmpresa';
+import Reportes from './pages/admin/Reportes';
 
 function App() {
   return (
@@ -44,42 +47,129 @@ function App() {
       <Routes>
         {/* Rutas públicas */}
         <Route path="/" element={<Layout><LandingPage /></Layout>} />
-  <Route path="/login" element={<><Navbar /><Login /></>} />
-        <Route path="/register" element={<Layout><Register /></Layout>} />
+        <Route path="/login" element={
+          <PublicRoute>
+            <><Navbar /><Login /></>
+          </PublicRoute>
+        } />
+        <Route path="/register" element={
+          <PublicRoute>
+            <Layout><Register /></Layout>
+          </PublicRoute>
+        } />
 
-  {/* Rutas legales */}
-  <Route path="/PoliticaPrivacidad" element={<Layout><PoliticaPrivacidad /></Layout>} />
-  <Route path="/TerminosUso" element={<Layout><TerminosUso /></Layout>} />
-  <Route path="/PoliticaDatos" element={<Layout><PoliticaDatos /></Layout>} />
-  
-  {/* Ruta de contacto */}
-  <Route path="/contacto" element={<Layout><Contacto /></Layout>} />
+        {/* Rutas legales */}
+        <Route path="/PoliticaPrivacidad" element={<Layout><PoliticaPrivacidad /></Layout>} />
+        <Route path="/TerminosUso" element={<Layout><TerminosUso /></Layout>} />
+        <Route path="/PoliticaDatos" element={<Layout><PoliticaDatos /></Layout>} />
+        
+        {/* Ruta de contacto */}
+        <Route path="/contacto" element={<Layout><Contacto /></Layout>} />
 
-        {/* Rutas privadas (admin) */}
-        <Route path="/admin" element={<Admin />} />
-        <Route path="/admin/aspirantes" element={<Aspirantes />} />
-        <Route path="/admin/empresas" element={<Empresas />} />
-  {/* Dashboard privado del aspirante */}
-  <Route path="/aspirantes/dashboard" element={<DashboardAspirante />} />
-  <Route path="/aspirantes/perfil" element={<PerfilAspirante />} />
-  {/* Redirección inteligente para /dashboard */}
-  <Route path="/dashboard" element={<DashboardRedirect />} />
-        <Route path="/aspirantes/completar-perfil" element={<CompletarPerfilAspirante />} />
-        {/* Activación de cuenta */}
-    <Route path="/activar-cuenta/:uidb64/:token" element={<Layout><ActivarCuenta /></Layout>} />
-  <Route path="/recuperar-password" element={<Layout><RecuperarPassword /></Layout>} />
-  <Route path="/restablecer-contraseña/:uidb64/:token" element={<Layout><RestablecerPassword /></Layout>} />
-  <Route path="/empresas/dashboard" element={<DashboardEmpresa />} />
-  <Route path="/empresas/perfil" element={<PerfilEmpresa />} />
-  <Route path="/empresas/vacantes" element={<VacantesEmpresa />} />
-  <Route path="/empresas/vacantes/editar/:id" element={<EditarVacanteEmpresa />} />
-  <Route path="/empresas/postulaciones" element={<PostulacionesRecibidasEmpresa />} />
-  <Route path="/aspirantes/vacantes" element={<VacantesDisponibles />} />
-  <Route path="/aspirantes/vacantes/:id" element={<DetalleVacante />} />
-  <Route path="/aspirantes/postulaciones" element={<PostulacionesAspirante />} />
-  <Route path="/aspirantes/postulaciones/:id" element={<DetallePostulacion />} />
-  {/* Ruta de notificaciones */}
-  <Route path="/notificaciones" element={<Notificaciones />} />
+        {/* Rutas de recuperación de contraseña */}
+        <Route path="/activar-cuenta/:uidb64/:token" element={<Layout><ActivarCuenta /></Layout>} />
+        <Route path="/recuperar-password" element={<Layout><RecuperarPassword /></Layout>} />
+        <Route path="/restablecer-contraseña/:uidb64/:token" element={<Layout><RestablecerPassword /></Layout>} />
+
+        {/* Rutas administrativas - Solo para administradores */}
+        <Route path="/admin" element={
+          <ProtectedRoute requiredRole="admin">
+            <Admin />
+          </ProtectedRoute>
+        } />
+        <Route path="/admin/aspirantes" element={
+          <ProtectedRoute requiredRole="admin">
+            <Aspirantes />
+          </ProtectedRoute>
+        } />
+        <Route path="/admin/empresas" element={
+          <ProtectedRoute requiredRole="admin">
+            <Empresas />
+          </ProtectedRoute>
+        } />
+        <Route path="/admin/reportes" element={
+          <ProtectedRoute requiredRole="admin">
+            <Reportes />
+          </ProtectedRoute>
+        } />
+
+        {/* Redirección inteligente para /dashboard */}
+        <Route path="/dashboard" element={
+          <ProtectedRoute>
+            <DashboardRedirect />
+          </ProtectedRoute>
+        } />
+
+        {/* Rutas de aspirantes */}
+        <Route path="/aspirantes/dashboard" element={
+          <ProtectedRoute>
+            <DashboardAspirante />
+          </ProtectedRoute>
+        } />
+        <Route path="/aspirantes/perfil" element={
+          <ProtectedRoute>
+            <PerfilAspirante />
+          </ProtectedRoute>
+        } />
+        <Route path="/aspirantes/completar-perfil" element={
+          <ProtectedRoute>
+            <CompletarPerfilAspirante />
+          </ProtectedRoute>
+        } />
+        <Route path="/aspirantes/vacantes" element={
+          <ProtectedRoute>
+            <VacantesDisponibles />
+          </ProtectedRoute>
+        } />
+        <Route path="/aspirantes/vacantes/:id" element={
+          <ProtectedRoute>
+            <DetalleVacante />
+          </ProtectedRoute>
+        } />
+        <Route path="/aspirantes/postulaciones" element={
+          <ProtectedRoute>
+            <PostulacionesAspirante />
+          </ProtectedRoute>
+        } />
+        <Route path="/aspirantes/postulaciones/:id" element={
+          <ProtectedRoute>
+            <DetallePostulacion />
+          </ProtectedRoute>
+        } />
+
+        {/* Rutas de empresas */}
+        <Route path="/empresas/dashboard" element={
+          <ProtectedRoute>
+            <DashboardEmpresa />
+          </ProtectedRoute>
+        } />
+        <Route path="/empresas/perfil" element={
+          <ProtectedRoute>
+            <PerfilEmpresa />
+          </ProtectedRoute>
+        } />
+        <Route path="/empresas/vacantes" element={
+          <ProtectedRoute>
+            <VacantesEmpresa />
+          </ProtectedRoute>
+        } />
+        <Route path="/empresas/vacantes/editar/:id" element={
+          <ProtectedRoute>
+            <EditarVacanteEmpresa />
+          </ProtectedRoute>
+        } />
+        <Route path="/empresas/postulaciones" element={
+          <ProtectedRoute>
+            <PostulacionesRecibidasEmpresa />
+          </ProtectedRoute>
+        } />
+
+        {/* Rutas compartidas que requieren autenticación */}
+        <Route path="/notificaciones" element={
+          <ProtectedRoute>
+            <Notificaciones />
+          </ProtectedRoute>
+        } />
       </Routes>
     </BrowserRouter>
   );

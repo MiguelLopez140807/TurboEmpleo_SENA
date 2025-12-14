@@ -45,17 +45,31 @@ function NotificationBell() {
         }
     };
 
-    // Cargar notificaciones al montar y cada 30 segundos
+    // Cargar notificaciones al montar y cada 60 segundos (optimizado)
     useEffect(() => {
+        if (!token) return;
+        
         fetchNotifications();
-        const interval = setInterval(fetchNotifications, 30000); // Actualizar cada 30s
+        const interval = setInterval(() => {
+            // Solo actualizar si el componente está visible
+            if (document.visibilityState === 'visible') {
+                fetchNotifications();
+            }
+        }, 60000); // Actualizar cada 60s en lugar de 30s
+        
         return () => clearInterval(interval);
     }, [token]);
 
+    // Optimizar: solo cargar cuando se abre el dropdown y han pasado >10s
     const handleToggleDropdown = () => {
         setShowDropdown(!showDropdown);
         if (!showDropdown) {
-            fetchNotifications(); // Refrescar al abrir
+            const now = Date.now();
+            const lastFetch = localStorage.getItem('lastNotificationFetch');
+            if (!lastFetch || now - parseInt(lastFetch) > 10000) {
+                fetchNotifications();
+                localStorage.setItem('lastNotificationFetch', now.toString());
+            }
         }
     };
 

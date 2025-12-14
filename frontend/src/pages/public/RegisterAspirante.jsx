@@ -1,10 +1,7 @@
+import React, { useState, useRef } from 'react';
 import { Link } from 'react-router-dom';
-import React, { useRef, useState } from "react";
 
 function RegisterAspirante() {
-  const fileInputRef = useRef();
-  const fotoInputRef = useRef();
-  const [fotoPreview, setFotoPreview] = useState(null);
   const [form, setForm] = useState({
     nombreCompleto: "",
     apellido: "",
@@ -26,107 +23,235 @@ function RegisterAspirante() {
     descripcion: "",
     curriculum: null,
   });
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
+  
+  const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
+  const [validationErrors, setValidationErrors] = useState({});
   const [aceptaDatos, setAceptaDatos] = useState(false);
+  const [fotoPreview, setFotoPreview] = useState(null);
+  
+  const fileInputRef = useRef(null);
+  const fotoInputRef = useRef(null);
+
+  // Validaciones simples
+  const validatePassword = (password) => {
+    const errors = [];
+    if (password.length < 8) errors.push("Debe tener al menos 8 caracteres");
+    if (!/[A-Z]/.test(password)) errors.push("Debe incluir una letra mayúscula");
+    if (!/[0-9]/.test(password)) errors.push("Debe incluir un número");
+    return { isValid: errors.length === 0, errors };
+  };
+
+  const validateEmail = (email) => {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  };
+
+  const validateCedula = (cedula) => {
+    return /^[0-9]{7,10}$/.test(cedula);
+  };
+
+  const validateTelefono = (telefono) => {
+    return /^[0-9]{10}$/.test(telefono);
+  };
+
+  // Validación en tiempo real
+  const validateField = (name, value) => {
+    const errors = { ...validationErrors };
+    
+    switch (name) {
+      case 'password':
+        const passwordValidation = validatePassword(value);
+        if (!passwordValidation.isValid) {
+          errors.password = passwordValidation.errors;
+        } else {
+          delete errors.password;
+        }
+        break;
+        
+      case 'email':
+        if (!validateEmail(value)) {
+          errors.email = ['Email no válido'];
+        } else {
+          delete errors.email;
+        }
+        break;
+        
+      case 'numeroId':
+        if (!validateCedula(value)) {
+          errors.numeroId = ['Número de identificación no válido'];
+        } else {
+          delete errors.numeroId;
+        }
+        break;
+        
+      case 'telefono':
+        if (!validateTelefono(value)) {
+          errors.telefono = ['Número de teléfono no válido (debe tener 10 dígitos)'];
+        } else {
+          delete errors.telefono;
+        }
+        break;
+        
+      case 'nombreCompleto':
+      case 'apellido':
+        if (value.length < 2) {
+          errors[name] = ['Debe tener al menos 2 caracteres'];
+        } else if (!/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/.test(value)) {
+          errors[name] = ['Solo se permiten letras'];
+        } else {
+          delete errors[name];
+        }
+        break;
+        
+      case 'usuario':
+        if (value.length < 3) {
+          errors.usuario = ['Debe tener al menos 3 caracteres'];
+        } else if (!/^[a-zA-Z0-9_]+$/.test(value)) {
+          errors.usuario = ['Solo letras, números y guión bajo'];
+        } else {
+          delete errors.usuario;
+        }
+        break;
+    }
+    
+    setValidationErrors(errors);
+  };
 
   const handleChange = (e) => {
-    const { name, value, type, files } = e.target;
-    if (type === "file") {
-      setForm((f) => ({ ...f, [name]: files[0] }));
-      if (name === "foto" && files[0]) {
-        const reader = new FileReader();
-        reader.onloadend = () => setFotoPreview(reader.result);
-        reader.readAsDataURL(files[0]);
+    const { name, value, files, type } = e.target;
+    
+    if (type === 'file') {
+      const file = files[0];
+      
+      if (name === 'foto') {
+        // Validaciones para foto
+        if (file) {
+          if (!file.type.startsWith('image/')) {
+            setError('Por favor selecciona un archivo de imagen válido');
+            return;
+          }
+          if (file.size > 5 * 1024 * 1024) { // 5MB
+            setError('La foto no debe superar los 5MB');
+            return;
+          }
+          
+          // Crear preview
+          const reader = new FileReader();
+          reader.onload = (e) => setFotoPreview(e.target.result);
+          reader.readAsDataURL(file);
+          
+          setForm({ ...form, foto: file });
+        }
+      } else if (name === 'curriculum') {
+        // Validaciones para PDF
+        if (file) {
+          if (file.type !== 'application/pdf') {
+            setError('Por favor selecciona un archivo PDF válido');
+            return;
+          }
+          if (file.size > 10 * 1024 * 1024) { // 10MB
+            setError('El currículum no debe superar los 10MB');
+            return;
+          }
+          
+          setForm({ ...form, curriculum: file });
+        }
       }
-    } else if (name === "idiomas") {
-      const selected = Array.from(e.target.selectedOptions, option => option.value);
-      setForm((f) => ({ ...f, idiomas: selected }));
-    } else if (name === "telefono" || name === "numeroId") {
-      // Solo permitir números
-      const numericValue = value.replace(/[^0-9]/g, "");
-      setForm((f) => ({ ...f, [name]: numericValue }));
     } else {
-      setForm((f) => ({ ...f, [name]: value }));
+      setForm({ ...form, [name]: value });
+      validateField(name, value);
     }
+    
+    setError('');
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError("");
-    setSuccess("");
+    
+    // Validación final
     if (!aceptaDatos) {
-      setError("Debes aceptar el tratamiento de datos personales para continuar.");
+      setError('Debes aceptar el tratamiento de datos y términos de uso');
       return;
     }
-    // Validaciones básicas en frontend
-    if (!form.email.match(/^[^@\s]+@[^@\s]+\.[^@\s]+$/)) {
-      setError("El correo electrónico no es válido.");
+    
+    // Validar todos los campos
+    Object.entries(form).forEach(([key, value]) => {
+      if (typeof value === 'string') {
+        validateField(key, value);
+      }
+    });
+    
+    // Verificar que no hay errores de validación
+    if (Object.keys(validationErrors).length > 0) {
+      setError('Por favor corrige los errores en el formulario');
       return;
     }
-    if (form.password.length < 8) {
-      setError("La contraseña debe tener al menos 8 caracteres.");
+    
+    // Verificar campos requeridos
+    const requiredFields = ['nombreCompleto', 'apellido', 'usuario', 'password', 'email', 'telefono', 
+                          'departamento', 'ciudad', 'ocupacion', 'cargo', 'descripcion', 'numeroId'];
+    
+    for (const field of requiredFields) {
+      if (!form[field] || form[field].trim() === '') {
+        setError(`El campo ${field} es obligatorio`);
+        return;
+      }
+    }
+    
+    // Curriculum es opcional
+    // if (!form.curriculum) {
+    //   setError('El currículum en PDF es obligatorio');
+    //   return;
+    // }
+    
+    if (!form.nacimiento_dia || !form.nacimiento_mes || !form.nacimiento_anio) {
+      setError('La fecha de nacimiento es obligatoria');
       return;
     }
-    if (form.telefono.length < 7) {
-      setError("El teléfono debe tener al menos 7 dígitos y solo números.");
-      return;
-    }
-    if (!/^[0-9]+$/.test(form.numeroId)) {
-      setError("El número de identificación solo puede contener números.");
-      return;
-    }
-    // Validar que la fecha de nacimiento sea mayor a 18 años
-    const dia = parseInt(form.nacimiento_dia, 10);
-    const mes = parseInt(form.nacimiento_mes, 10) - 1; // Mes en JS es 0-index
-    const anio = parseInt(form.nacimiento_anio, 10);
-    const fechaNacimiento = new Date(anio, mes, dia);
-    const hoy = new Date();
-    const edad = hoy.getFullYear() - fechaNacimiento.getFullYear();
-    const cumpleEsteAnio = hoy.getMonth() > mes || (hoy.getMonth() === mes && hoy.getDate() >= dia);
-    const edadFinal = cumpleEsteAnio ? edad : edad - 1;
-    if (isNaN(edadFinal) || edadFinal < 18) {
-      setError("Debes ser mayor de 18 años para registrarte.");
-      return;
-    }
-    const formData = new FormData();
-    formData.append('user_nombre', form.usuario);
-    formData.append('user_contraseña', form.password);
-    formData.append('user_rol', 'Aspirante');
-    formData.append('asp_nombre', form.nombreCompleto);
-    formData.append('asp_apellido', form.apellido);
-    formData.append('asp_correo', form.email);
-    formData.append('asp_telefono', form.telefono);
-    formData.append('asp_departamento', form.departamento);
-    formData.append('asp_ciudad', form.ciudad);
-    formData.append('asp_ocupacion', form.ocupacion);
-    formData.append('asp_nacimiento_dia', form.nacimiento_dia);
-    formData.append('asp_nacimiento_mes', form.nacimiento_mes);
-    formData.append('asp_nacimiento_anio', form.nacimiento_anio);
-    formData.append('asp_tipoId', form.tipoId);
-    formData.append('asp_numeroId', form.numeroId);
-    formData.append('asp_cargo', form.cargo);
-    formData.append('asp_descripcion', form.descripcion);
-    if (form.foto) formData.append('asp_foto', form.foto);
-    if (form.curriculum) formData.append('asp_curriculum', form.curriculum);
-    if (form.idiomas && form.idiomas.length > 0) {
-      formData.append('asp_idiomas', JSON.stringify(form.idiomas));
-    }
+
     try {
+      const formData = new FormData();
+      
+      // Mapear campos del frontend a los nombres esperados por el backend
+      formData.append('user_nombre', form.usuario);
+      formData.append('user_contraseña', form.password);
+      formData.append('user_rol', 'aspirante');
+      formData.append('asp_nombre', form.nombreCompleto);
+      formData.append('asp_apellido', form.apellido);
+      formData.append('asp_correo', form.email);
+      formData.append('asp_telefono', form.telefono);
+      formData.append('asp_departamento', form.departamento);
+      formData.append('asp_ciudad', form.ciudad);
+      formData.append('asp_ocupacion', form.ocupacion);
+      formData.append('asp_nacimiento_dia', form.nacimiento_dia);
+      formData.append('asp_nacimiento_mes', form.nacimiento_mes);
+      formData.append('asp_nacimiento_anio', form.nacimiento_anio);
+      formData.append('asp_tipoId', form.tipoId);
+      formData.append('asp_numeroId', form.numeroId);
+      formData.append('asp_cargo', form.cargo);
+      formData.append('asp_descripcion', form.descripcion);
+      formData.append('asp_idiomas', JSON.stringify(form.idiomas));
+      
+      // Agregar archivos si existen
+      if (form.curriculum) {
+        formData.append('asp_curriculum', form.curriculum);
+      }
+      if (form.foto) {
+        formData.append('asp_foto', form.foto);
+      }
+
       const response = await fetch('http://127.0.0.1:8000/api/registro/', {
         method: 'POST',
         body: formData,
       });
+
       const data = await response.json();
+      
       if (response.ok) {
-        // Guardar token y user_data si vienen en la respuesta
-        if (data.token) {
-          localStorage.setItem('token', data.token);
-        }
-        if (data.user) {
-          localStorage.setItem('user_data', JSON.stringify(data.user));
-        }
-        setSuccess('¡Registro enviado exitosamente!');
+        setSuccess('¡Registro exitoso! Revisa tu email para activar tu cuenta.');
+        setError('');
+        setFotoPreview(null);
+        setAceptaDatos(false);
         setForm({
           nombreCompleto: "",
           apellido: "",
@@ -174,22 +299,40 @@ function RegisterAspirante() {
           <p className="text-gray-600">Completa el formulario para unirte a TurboEmpleo</p>
         </div>
 
-        {error && (
-          <div className="w-full bg-red-50 border-l-4 border-red-500 p-4 rounded-lg mb-6">
+        {/* Mostrar errores de validación */}
+        {Object.keys(validationErrors).length > 0 && (
+          <div className="bg-red-50 border-l-4 border-red-500 p-4 rounded-lg mb-6">
             <div className="flex items-center">
-              <svg className="h-5 w-5 text-red-500 mr-2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+              <svg className="h-5 w-5 text-red-500 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <div>
+                {Object.values(validationErrors).flat().map((error, index) => (
+                  <p key={index} className="text-sm text-red-700">{error}</p>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Mostrar mensaje de error general */}
+        {error && (
+          <div className="bg-red-50 border-l-4 border-red-500 p-4 rounded-lg mb-6">
+            <div className="flex items-center">
+              <svg className="h-5 w-5 text-red-500 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
               <p className="text-sm text-red-700">{error}</p>
             </div>
           </div>
         )}
-
+        
+        {/* Mostrar mensaje de éxito */}
         {success && (
-          <div className="w-full bg-green-50 border-l-4 border-green-500 p-4 rounded-lg mb-6">
+          <div className="bg-green-50 border-l-4 border-green-500 p-4 rounded-lg mb-6">
             <div className="flex items-center">
-              <svg className="h-5 w-5 text-green-500 mr-2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+              <svg className="h-5 w-5 text-green-500 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
               <p className="text-sm text-green-700">{success}</p>
             </div>
@@ -216,7 +359,7 @@ function RegisterAspirante() {
                       value={form.nombreCompleto} 
                       onChange={handleChange} 
                       type="text" 
-                      className="w-full pl-10 pr-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#5e17eb] focus:border-transparent transition" 
+                      className={`w-full pl-10 pr-4 py-3 rounded-lg border ${validationErrors.nombreCompleto ? 'border-red-300' : 'border-gray-300'} focus:outline-none focus:ring-2 focus:ring-[#5e17eb] focus:border-transparent transition`}
                       required 
                     />
                   </div>
@@ -235,7 +378,7 @@ function RegisterAspirante() {
                       value={form.apellido} 
                       onChange={handleChange} 
                       type="text" 
-                      className="w-full pl-10 pr-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#5e17eb] focus:border-transparent transition" 
+                      className={`w-full pl-10 pr-4 py-3 rounded-lg border ${validationErrors.apellido ? 'border-red-300' : 'border-gray-300'} focus:outline-none focus:ring-2 focus:ring-[#5e17eb] focus:border-transparent transition`}
                       required 
                     />
                   </div>
@@ -254,7 +397,7 @@ function RegisterAspirante() {
                       value={form.usuario} 
                       onChange={handleChange} 
                       type="text" 
-                      className="w-full pl-10 pr-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#5e17eb] focus:border-transparent transition" 
+                      className={`w-full pl-10 pr-4 py-3 rounded-lg border ${validationErrors.usuario ? 'border-red-300' : 'border-gray-300'} focus:outline-none focus:ring-2 focus:ring-[#5e17eb] focus:border-transparent transition`}
                       required 
                     />
                   </div>
@@ -273,7 +416,7 @@ function RegisterAspirante() {
                       value={form.password} 
                       onChange={handleChange} 
                       type="password" 
-                      className="w-full pl-10 pr-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#5e17eb] focus:border-transparent transition" 
+                      className={`w-full pl-10 pr-4 py-3 rounded-lg border ${validationErrors.password ? 'border-red-300' : 'border-gray-300'} focus:outline-none focus:ring-2 focus:ring-[#5e17eb] focus:border-transparent transition`}
                       required 
                     />
                   </div>
@@ -284,7 +427,7 @@ function RegisterAspirante() {
                   <div className="relative">
                     <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                       <svg className="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2z" />
                       </svg>
                     </div>
                     <input 
@@ -292,7 +435,7 @@ function RegisterAspirante() {
                       value={form.email} 
                       onChange={handleChange} 
                       type="email" 
-                      className="w-full pl-10 pr-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#5e17eb] focus:border-transparent transition" 
+                      className={`w-full pl-10 pr-4 py-3 rounded-lg border ${validationErrors.email ? 'border-red-300' : 'border-gray-300'} focus:outline-none focus:ring-2 focus:ring-[#5e17eb] focus:border-transparent transition`}
                       required 
                     />
                   </div>
@@ -420,7 +563,7 @@ function RegisterAspirante() {
                       type="tel" 
                       pattern="[0-9]*" 
                       inputMode="numeric" 
-                      className="w-full pl-10 pr-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#5e17eb] focus:border-transparent transition" 
+                      className={`w-full pl-10 pr-4 py-3 rounded-lg border ${validationErrors.telefono ? 'border-red-300' : 'border-gray-300'} focus:outline-none focus:ring-2 focus:ring-[#5e17eb] focus:border-transparent transition`}
                       required 
                     />
                   </div>
@@ -509,7 +652,7 @@ function RegisterAspirante() {
                         pattern="[0-9]*" 
                         inputMode="numeric" 
                         placeholder="N° documento" 
-                        className="w-full pl-10 pr-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#5e17eb] focus:border-transparent transition" 
+                        className={`w-full pl-10 pr-4 py-3 rounded-lg border ${validationErrors.numeroId ? 'border-red-300' : 'border-gray-300'} focus:outline-none focus:ring-2 focus:ring-[#5e17eb] focus:border-transparent transition`}
                         required 
                       />
                     </div>
@@ -618,7 +761,6 @@ function RegisterAspirante() {
                   ref={fileInputRef}
                   onChange={handleChange}
                   className="hidden"
-                  required
                 />
                 <div className="mt-4 text-center">
                   {form.curriculum ? (

@@ -68,10 +68,24 @@ function DetalleVacante() {
                 
                 navigate("/aspirantes/postulaciones");
             } else {
-                if (res.status === 400 && data.detail && data.detail.includes("ya postulado")) {
-                    alert("Ya te has postulado a esta vacante anteriormente.");
+                // Manejar diferentes tipos de errores de postulación duplicada
+                if (res.status === 400) {
+                    if (data.detail && data.detail.includes("ya postulado")) {
+                        alert("Ya te has postulado a esta vacante anteriormente.");
+                    } else if (data.detail && data.detail.includes("Ya te has postulado")) {
+                        alert(data.detail);
+                    } else if (data.non_field_errors && 
+                               data.non_field_errors.some(error => 
+                                   error.includes("unique set") || 
+                                   error.includes("pos_aspirante_fk") && error.includes("pos_vacante_fk"))) {
+                        alert("Ya te has postulado a esta vacante anteriormente. No puedes postularte dos veces a la misma oferta laboral.");
+                    } else if (typeof data === 'string' && data.includes("Ya te has postulado")) {
+                        alert(data);
+                    } else {
+                        alert(data.detail || "No se pudo postular. Intenta nuevamente.");
+                    }
                 } else {
-                    alert(data.detail || JSON.stringify(data) || "No se pudo postular. Intenta nuevamente.");
+                    alert(data.detail || "No se pudo postular. Intenta nuevamente.");
                 }
                 console.error("Error postulación:", data);
             }

@@ -3,7 +3,6 @@ import Navbar from "../../components/navbar";
 import Footer from "../../components/footer";
 import Breadcrumbs from "../../components/Breadcrumbs";
 
-
 function PerfilEmpresa() {
     const [form, setForm] = useState(null);
     const [logoFile, setLogoFile] = useState(null);

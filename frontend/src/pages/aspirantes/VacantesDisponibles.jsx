@@ -20,6 +20,11 @@ function VacantesDisponibles() {
     const [filtroBusqueda, setFiltroBusqueda] = useState("");
     const [filtroTurbo, setFiltroTurbo] = useState(false);
 
+    // Estados para paginación
+    const [paginaActual, setPaginaActual] = useState(1);
+    const vacantesPorPagina = 6;
+    const [todasLasVacantes, setTodasLasVacantes] = useState([]);
+
     const breadcrumbItems = [
         { label: 'Dashboard', path: '/aspirantes/dashboard' },
         { label: 'Vacantes Disponibles', active: true }
@@ -65,7 +70,12 @@ function VacantesDisponibles() {
             return res.json();
         })
         .then((data) => {
-            setVacantes(Array.isArray(data) ? data : []);
+            const vacantesArray = Array.isArray(data) ? data : [];
+            setTodasLasVacantes(vacantesArray);
+            // Aplicar paginación
+            const inicio = (paginaActual - 1) * vacantesPorPagina;
+            const fin = inicio + vacantesPorPagina;
+            setVacantes(vacantesArray.slice(inicio, fin));
             setLoading(false);
         })
         .catch((err) => {
@@ -78,14 +88,45 @@ function VacantesDisponibles() {
     };
 
     useEffect(() => {
+        setPaginaActual(1); // Resetear a primera página cuando cambien los filtros
         fetchVacantes();
     }, [filtroUbicacion, filtroTipoEmpleo, filtroBusqueda, filtroTurbo]);
+
+    // Efecto para actualizar paginación cuando cambian las vacantes
+    useEffect(() => {
+        if (todasLasVacantes.length > 0) {
+            const inicio = (paginaActual - 1) * vacantesPorPagina;
+            const fin = inicio + vacantesPorPagina;
+            setVacantes(todasLasVacantes.slice(inicio, fin));
+        }
+    }, [paginaActual, todasLasVacantes]);
 
     const limpiarFiltros = () => {
         setFiltroUbicacion("");
         setFiltroTipoEmpleo("");
         setFiltroBusqueda("");
         setFiltroTurbo(false);
+        setPaginaActual(1); // Resetear a primera página
+    };
+
+    // Funciones de paginación
+    const totalPaginas = Math.ceil(todasLasVacantes.length / vacantesPorPagina);
+    const irAPagina = (pagina) => {
+        setPaginaActual(pagina);
+        // Scroll hacia arriba cuando cambie de página
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
+
+    const paginaAnterior = () => {
+        if (paginaActual > 1) {
+            irAPagina(paginaActual - 1);
+        }
+    };
+
+    const paginaSiguiente = () => {
+        if (paginaActual < totalPaginas) {
+            irAPagina(paginaActual + 1);
+        }
     };
 
     const handlePostular = async (vacanteId) => {
@@ -262,6 +303,64 @@ function VacantesDisponibles() {
                                 </div>
                             );
                         })}
+                    </div>
+                )}
+
+                {/* Componente de Paginación */}
+                {todasLasVacantes.length > vacantesPorPagina && (
+                    <div className="mt-8 flex justify-center">
+                        <div className="flex items-center space-x-2">
+                            {/* Botón Anterior */}
+                            <button
+                                onClick={paginaAnterior}
+                                disabled={paginaActual === 1}
+                                className={`px-3 py-2 rounded-lg font-medium transition-colors ${
+                                    paginaActual === 1
+                                        ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                                        : 'bg-white text-[#5e17eb] border border-[#5e17eb] hover:bg-[#5e17eb] hover:text-white'
+                                }`}
+                            >
+                                ← Anterior
+                            </button>
+
+                            {/* Números de página */}
+                            {[...Array(totalPaginas)].map((_, index) => {
+                                const numeroPagina = index + 1;
+                                return (
+                                    <button
+                                        key={numeroPagina}
+                                        onClick={() => irAPagina(numeroPagina)}
+                                        className={`px-3 py-2 rounded-lg font-medium transition-colors ${
+                                            paginaActual === numeroPagina
+                                                ? 'bg-[#5e17eb] text-white'
+                                                : 'bg-white text-[#5e17eb] border border-[#5e17eb] hover:bg-[#5e17eb] hover:text-white'
+                                        }`}
+                                    >
+                                        {numeroPagina}
+                                    </button>
+                                );
+                            })}
+
+                            {/* Botón Siguiente */}
+                            <button
+                                onClick={paginaSiguiente}
+                                disabled={paginaActual === totalPaginas}
+                                className={`px-3 py-2 rounded-lg font-medium transition-colors ${
+                                    paginaActual === totalPaginas
+                                        ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                                        : 'bg-white text-[#5e17eb] border border-[#5e17eb] hover:bg-[#5e17eb] hover:text-white'
+                                }`}
+                            >
+                                Siguiente →
+                            </button>
+                        </div>
+                    </div>
+                )}
+
+                {/* Información de paginación */}
+                {todasLasVacantes.length > 0 && (
+                    <div className="mt-4 text-center text-sm text-gray-600">
+                        Mostrando {((paginaActual - 1) * vacantesPorPagina) + 1} - {Math.min(paginaActual * vacantesPorPagina, todasLasVacantes.length)} de {todasLasVacantes.length} vacantes
                     </div>
                 )}
                 </div>

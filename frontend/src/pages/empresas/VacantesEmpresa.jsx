@@ -18,10 +18,33 @@ function VacantesEmpresa() {
     const userData = JSON.parse(localStorage.getItem("user_data") || "null");
     const empresaId = userData ? userData.id : null;
 
+    // Estados para paginación
+    const [paginaActual, setPaginaActual] = useState(1);
+    const vacantesPorPagina = 3;
+
     const breadcrumbItems = [
         { label: 'Dashboard', path: '/empresas/dashboard' },
         { label: 'Mis Vacantes', active: true }
     ];
+
+    // Cálculos de paginación
+    const indiceUltimaVacante = paginaActual * vacantesPorPagina;
+    const indicePrimeraVacante = indiceUltimaVacante - vacantesPorPagina;
+    const vacantesActuales = Array.isArray(vacantes) ? vacantes.slice(indicePrimeraVacante, indiceUltimaVacante) : [];
+    const totalPaginas = Array.isArray(vacantes) ? Math.ceil(vacantes.length / vacantesPorPagina) : 0;
+
+    // Funciones de paginación
+    const irAPaginaSiguiente = () => {
+        if (paginaActual < totalPaginas) {
+            setPaginaActual(paginaActual + 1);
+        }
+    };
+
+    const irAPaginaAnterior = () => {
+        if (paginaActual > 1) {
+            setPaginaActual(paginaActual - 1);
+        }
+    };
 
     // Eliminar vacante
     const handleEliminar = async (vacanteId) => {
@@ -103,7 +126,7 @@ function VacantesEmpresa() {
                             <h2 className="text-2xl font-bold text-[#5e17eb] mb-4">Mis Vacantes ({vacantes.length})</h2>
                         </div>
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 w-full max-w-6xl">
-                            {vacantes.map((vac) => (
+                            {vacantesActuales.map((vac) => (
                                 <div key={vac.id} className="bg-white rounded-xl shadow-lg hover:shadow-xl transition p-6 flex flex-col border-t-4 border-[#A67AFF] relative">
                                     {/* ⚡ Badge Turbo en la parte superior derecha junto al estado */}
                                     
@@ -167,6 +190,70 @@ function VacantesEmpresa() {
                                 </div>
                             ))}
                         </div>
+                        
+                        {/* Controles de paginación */}
+                        {vacantes.length > vacantesPorPagina && (
+                            <div className="mt-8 flex flex-col sm:flex-row justify-between items-center gap-4 bg-white rounded-lg shadow p-4 w-full max-w-6xl">
+                                <div className="text-sm text-gray-600">
+                                    Mostrando {Math.min(indicePrimeraVacante + 1, vacantes.length)} - {Math.min(indiceUltimaVacante, vacantes.length)} de {vacantes.length} vacantes
+                                </div>
+                                
+                                <div className="flex items-center gap-2">
+                                    <button
+                                        onClick={irAPaginaAnterior}
+                                        disabled={paginaActual === 1}
+                                        className={`px-4 py-2 rounded-lg border transition-colors ${
+                                            paginaActual === 1
+                                                ? 'bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed'
+                                                : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
+                                        }`}
+                                    >
+                                        Anterior
+                                    </button>
+                                    
+                                    <div className="flex items-center gap-2">
+                                        {Array.from({ length: Math.min(5, totalPaginas) }, (_, index) => {
+                                            let pagina;
+                                            if (totalPaginas <= 5) {
+                                                pagina = index + 1;
+                                            } else if (paginaActual <= 3) {
+                                                pagina = index + 1;
+                                            } else if (paginaActual >= totalPaginas - 2) {
+                                                pagina = totalPaginas - 4 + index;
+                                            } else {
+                                                pagina = paginaActual - 2 + index;
+                                            }
+                                            
+                                            return (
+                                                <button
+                                                    key={pagina}
+                                                    onClick={() => setPaginaActual(pagina)}
+                                                    className={`w-10 h-10 rounded-lg border transition-colors ${
+                                                        paginaActual === pagina
+                                                            ? 'bg-[#A67AFF] text-white border-[#A67AFF]'
+                                                            : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
+                                                    }`}
+                                                >
+                                                    {pagina}
+                                                </button>
+                                            );
+                                        })}
+                                    </div>
+                                    
+                                    <button
+                                        onClick={irAPaginaSiguiente}
+                                        disabled={paginaActual === totalPaginas}
+                                        className={`px-4 py-2 rounded-lg border transition-colors ${
+                                            paginaActual === totalPaginas
+                                                ? 'bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed'
+                                                : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
+                                        }`}
+                                    >
+                                        Siguiente
+                                    </button>
+                                </div>
+                            </div>
+                        )}
                         
                         {/* Modal de detalles */}
                         {vacanteDetalle && (

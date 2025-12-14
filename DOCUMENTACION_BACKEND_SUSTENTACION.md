@@ -8,7 +8,9 @@
 2. [Arquitectura y Patrón de Diseño](#arquitectura)
 3. [Explicación Detallada de Carpetas y Archivos](#carpetas-y-archivos)
 4. [Ejemplo de Funcionalidad: Sistema de Postulaciones](#funcionalidad-postulaciones)
-5. [¿Por qué Django REST Framework sobre MVC tradicional?](#porque-drf)
+5. [Funcionalidad de Carga Masiva de Datos](#carga-masiva)
+6. [Sistema de Seguridad y Rutas Protegidas](#seguridad-rutas)
+7. [¿Por qué Django REST Framework sobre MVC tradicional?](#porque-drf)
 
 ---
 
