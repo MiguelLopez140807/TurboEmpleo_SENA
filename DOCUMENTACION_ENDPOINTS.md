@@ -45,7 +45,7 @@ urlpatterns = [
 
 Cada `router.register()` crea automáticamente estos 6 endpoints:
 
-### **Patrón estándar:**
+### **Patrón estándar:**e
 ```
 GET    /api/{recurso}/              # Listar todos
 POST   /api/{recurso}/              # Crear nuevo

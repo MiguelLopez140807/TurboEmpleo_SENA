@@ -518,4 +518,16 @@ class UsuarioRegistroSerializer(serializers.Serializer):
                 [usuario.email],
                 fail_silently=False,
             )
+        # Registrar consentimiento de privacidad
+        from .models import Consentimiento
+        texto_consentimiento = (
+            "Acepto la política de privacidad y el tratamiento de mis datos personales según la normativa vigente. "
+            "Versión: 1.0 - TurboEmpleo."
+        )
+        Consentimiento.objects.create(
+            usuario=usuario,
+            tipo="privacidad",
+            texto=texto_consentimiento,
+            aceptado=True
+        )
         return usuario

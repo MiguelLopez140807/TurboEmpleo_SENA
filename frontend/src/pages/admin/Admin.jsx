@@ -1063,9 +1063,16 @@ function Admin() {
 
   const deleteUser = async (userId) => {
     if (!confirm('¿Estás seguro de que deseas eliminar este usuario?')) return;
-    
+    let url = '';
+    if (activeTab === 'aspirantes') {
+      url = `http://127.0.0.1:8000/api/aspirantes/${userId}/`;
+    } else if (activeTab === 'empresas') {
+      url = `http://127.0.0.1:8000/api/empresas/${userId}/`;
+    } else {
+      url = `http://127.0.0.1:8000/api/usuarios/${userId}/`;
+    }
     try {
-      const response = await fetch(`http://127.0.0.1:8000/api/usuarios/${userId}/`, {
+      const response = await fetch(url, {
         method: 'DELETE',
         headers: { 'Authorization': `Bearer ${token}` }
       });
@@ -1973,7 +1980,13 @@ function Admin() {
                                     <FaEdit className="h-4 w-4" />
                                   </button>
                                   <button
-                                    onClick={() => handleDelete(item)}
+                                    onClick={() => {
+                                      if (activeTab === 'aspirantes') {
+                                        deleteUser(item.id);
+                                      } else {
+                                        handleDelete(item);
+                                      }
+                                    }}
                                     className="bg-red-100 hover:bg-red-200 text-red-700 p-2 rounded-lg transition-colors duration-200"
                                     title="Eliminar"
                                   >

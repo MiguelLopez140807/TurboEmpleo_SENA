@@ -1,3 +1,35 @@
+# Agregar importación de models de Django
+from django.db import models
+from django.conf import settings
+# ...existing code...
+
+# Auditoría de acciones críticas sobre usuarios
+class AuditoriaUsuario(models.Model):
+    ACCION_CHOICES = [
+        ("editar", "Editar"),
+        ("eliminar", "Eliminar"),
+    ]
+    usuario_afectado = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="auditorias_afectado")
+    usuario_accion = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True, related_name="auditorias_realizadas")
+    accion = models.CharField(max_length=10, choices=ACCION_CHOICES)
+    fecha = models.DateTimeField(auto_now_add=True)
+    detalle = models.TextField(blank=True)
+
+    def __str__(self):
+        return f"{self.usuario_accion} {self.accion} a {self.usuario_afectado} el {self.fecha}"
+
+# ...existing code...
+
+# Modelo sencillo para registro de consentimientos otorgados
+class Consentimiento(models.Model):
+    usuario = models.ForeignKey('Usuarios', on_delete=models.CASCADE, related_name='consentimientos')
+    tipo = models.CharField(max_length=50, help_text='Tipo de consentimiento (privacidad, marketing, cookies, etc)')
+    texto = models.TextField(help_text='Texto o versión del consentimiento otorgado')
+    otorgado_en = models.DateTimeField(auto_now_add=True)
+    aceptado = models.BooleanField(default=True)
+
+    def __str__(self):
+        return f"{self.usuario.user_nombre} - {self.tipo} - {'Sí' if self.aceptado else 'No'}"
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
 

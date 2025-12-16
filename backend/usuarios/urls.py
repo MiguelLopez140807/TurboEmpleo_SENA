@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import UsuarioRegistroView, contacto_view
+from .views import UsuarioRegistroView, contacto_view, LogoutAllView
 from .password_views import ChangePasswordView, DeleteAccountView
 from .activation_views import ActivateAccountView
 from .password_reset_views import PasswordResetRequestView, PasswordResetConfirmView
@@ -12,4 +12,7 @@ urlpatterns = [
     path('password-reset/', PasswordResetRequestView.as_view(), name='password_reset_request'),
     path('password-reset-confirm/<uidb64>/<token>/', PasswordResetConfirmView.as_view(), name='password_reset_confirm'),
     path('contacto/', contacto_view, name='contacto'),
+
+    # Logout en todos los dispositivos
+    path('logout-all/', LogoutAllView.as_view(), name='logout_all'),
 ]

@@ -1,6 +1,35 @@
-from django.db.models.signals import post_save, pre_save
+from django.db.models.signals import post_save, pre_delete, pre_save
 from django.dispatch import receiver
-from .models import Postulacion, Notificacion, Aspirante, Empresa
+from django.contrib.auth import get_user_model
+from .models import Postulacion, Notificacion, Aspirante, Empresa, AuditoriaUsuario
+from django.utils import timezone
+
+User = get_user_model()
+
+# Auditoría de edición de usuario
+@receiver(post_save, sender=User)
+def auditar_edicion_usuario(sender, instance, created, **kwargs):
+    if not created:
+        # Buscar usuario que realiza la acción si está en contexto (request)
+        # Aquí solo se registra la edición, el usuario_accion puede ser None
+        AuditoriaUsuario.objects.create(
+            usuario_afectado=instance,
+            usuario_accion=None,  # Mejorable: setear desde request
+            accion="editar",
+            detalle="Usuario editado automáticamente por señal",
+            fecha=timezone.now()
+        )
+
+# Auditoría de eliminación de usuario
+@receiver(pre_delete, sender=User)
+def auditar_eliminacion_usuario(sender, instance, **kwargs):
+    AuditoriaUsuario.objects.create(
+        usuario_afectado=instance,
+        usuario_accion=None,  # Mejorable: setear desde request
+        accion="eliminar",
+        detalle="Usuario eliminado automáticamente por señal",
+        fecha=timezone.now()
+    )
 
 @receiver(post_save, sender=Postulacion)
 def crear_notificacion_nueva_postulacion(sender, instance, created, **kwargs):

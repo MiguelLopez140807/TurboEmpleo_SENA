@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="100" height="100" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+  <!-- Fondo circular -->
+  <circle cx="50" cy="50" r="45" fill="#5e17eb" stroke="#4c0dcd" stroke-width="3"/>
+  
+  <!-- Círculo interno decorativo -->
+  <circle cx="50" cy="50" r="38" fill="none" stroke="#ba54f3" stroke-width="1" opacity="0.5"/>
+  
+  <!-- Texto TURBO -->
+  <text x="50" y="35" font-family="Arial, sans-serif" font-size="16" font-weight="bold" 
+        text-anchor="middle" fill="white" letter-spacing="1px">TURBO</text>
+  
+  <!-- Texto EMPLEO -->
+  <text x="50" y="55" font-family="Arial, sans-serif" font-size="12" font-weight="bold" 
+        text-anchor="middle" fill="white" letter-spacing="0.5px">EMPLEO</text>
+  
+  <!-- Elementos decorativos -->
+  <circle cx="50" cy="70" r="3" fill="white"/>
+  <circle cx="42" cy="70" r="2" fill="#d6c6f9"/>
+  <circle cx="58" cy="70" r="2" fill="#d6c6f9"/>
+  
+  <!-- Línea decorativa -->
+  <line x1="30" y1="75" x2="70" y2="75" stroke="#ba54f3" stroke-width="2" opacity="0.7"/>
+  
+  <!-- Iconos pequeños representando trabajo -->
+  <rect x="25" y="20" width="3" height="3" fill="#d6c6f9" rx="1"/>
+  <rect x="72" y="20" width="3" height="3" fill="#d6c6f9" rx="1"/>
+  <rect x="25" y="77" width="3" height="3" fill="#d6c6f9" rx="1"/>
+  <rect x="72" y="77" width="3" height="3" fill="#d6c6f9" rx="1"/>
+</svg>

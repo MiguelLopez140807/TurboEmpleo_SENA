@@ -393,39 +393,76 @@ function PerfilAspirante() {
                                 <button type="submit" className="w-full bg-[#5e17eb] text-white font-bold py-2 rounded-lg hover:bg-[#A67AFF] transition mt-2">Cambiar contraseña</button>
                             </form>
                             
-                            {/* Eliminar cuenta */}
-                            <div className="mt-8">
-                                <h4 className="text-lg font-semibold text-red-600 mb-2">Eliminar cuenta</h4>
-                                <p className="text-gray-600 mb-4">Esta acción es irreversible. Todos los datos del aspirante serán eliminados.</p>
+                            {/* Cerrar sesión en todos los dispositivos */}
+                            <div className="mt-8 flex flex-col gap-4">
                                 <button
-                                    className="w-full bg-transparent border-2 border-red-500 text-red-500 font-bold py-2 rounded-lg shadow hover:bg-red-500 hover:text-white transition"
+                                    className="w-full bg-[#A67AFF] text-white font-bold py-2 rounded-lg shadow hover:bg-[#5e17eb] transition"
                                     onClick={async () => {
-                                        if (!window.confirm("¿Estás seguro de que deseas eliminar tu cuenta? Esta acción no se puede deshacer.")) return;
+                                        if (!window.confirm("¿Seguro que deseas cerrar sesión en todos los dispositivos? Esto cerrará tu sesión en todos los lugares donde hayas iniciado sesión.")) return;
                                         setError("");
                                         setSuccess("");
                                         try {
-                                            const res = await fetch("http://127.0.0.1:8000/api/usuarios/eliminar-cuenta/", {
-                                                method: "DELETE",
+                                            const res = await fetch("http://127.0.0.1:8000/api/usuarios/logout-all/", {
+                                                method: "POST",
                                                 headers: {
                                                     Authorization: `Bearer ${token}`,
                                                 },
                                             });
                                             if (res.ok) {
-                                                setSuccess("Cuenta eliminada correctamente. Cerrando sesión...");
+                                                setSuccess("Sesión cerrada en todos los dispositivos. Serás redirigido al inicio de sesión.");
                                                 setTimeout(() => {
                                                     localStorage.clear();
                                                     window.location.href = "/";
                                                 }, 2000);
                                             } else {
-                                                setError("Error al eliminar la cuenta.");
+                                                setError("Error al cerrar sesión en todos los dispositivos.");
                                             }
                                         } catch (err) {
-                                            setError("Error de conexión al eliminar la cuenta.");
+                                            setError("Error de conexión al cerrar sesión en todos los dispositivos.");
                                         }
                                     }}
                                 >
-                                    Eliminar mi cuenta
+                                    Cerrar sesión en todos los dispositivos
                                 </button>
+                                {/* Eliminar cuenta */}
+                                <div>
+                                    <h4 className="text-lg font-semibold text-red-600 mb-2">Eliminar cuenta</h4>
+                                    <p className="text-gray-600 mb-4">Esta acción es irreversible. Todos los datos del aspirante serán eliminados.</p>
+                                    <button
+                                        className="w-full bg-transparent border-2 border-red-500 text-red-500 font-bold py-2 rounded-lg shadow hover:bg-red-500 hover:text-white transition"
+                                        onClick={async () => {
+                                            if (!window.confirm("¿Estás seguro de que deseas eliminar tu cuenta? Esta acción no se puede deshacer.")) return;
+                                            const confirmText = window.prompt("Esta acción es irreversible. Escribe ELIMINAR para confirmar:");
+                                            if (confirmText !== "ELIMINAR") {
+                                                setError("Debes escribir 'ELIMINAR' para confirmar la eliminación de la cuenta.");
+                                                return;
+                                            }
+                                            setError("");
+                                            setSuccess("");
+                                            try {
+                                                const res = await fetch("http://127.0.0.1:8000/api/usuarios/eliminar-cuenta/", {
+                                                    method: "DELETE",
+                                                    headers: {
+                                                        Authorization: `Bearer ${token}`,
+                                                    },
+                                                });
+                                                if (res.ok) {
+                                                    setSuccess("Cuenta eliminada correctamente. Cerrando sesión...");
+                                                    setTimeout(() => {
+                                                        localStorage.clear();
+                                                        window.location.href = "/";
+                                                    }, 2000);
+                                                } else {
+                                                    setError("Error al eliminar la cuenta.");
+                                                }
+                                            } catch (err) {
+                                                setError("Error de conexión al eliminar la cuenta.");
+                                            }
+                                        }}
+                                    >
+                                        Eliminar mi cuenta
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     )}

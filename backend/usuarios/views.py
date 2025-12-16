@@ -1,3 +1,19 @@
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.views import APIView
+from rest_framework_simplejwt.token_blacklist.models import OutstandingToken, BlacklistedToken
+# Endpoint para cerrar sesión en todos los dispositivos
+class LogoutAllView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        user = request.user
+        tokens = OutstandingToken.objects.filter(user=user)
+        for token in tokens:
+            try:
+                BlacklistedToken.objects.get_or_create(token=token)
+            except Exception:
+                pass
+        return Response({"detail": "Sesión cerrada en todos los dispositivos."}, status=200)
 from .models import Postulacion, Notificacion, Vacante, Empresa
 from .serializers import PostulacionSerializer, NotificacionSerializer
 from rest_framework import viewsets, status
@@ -18,18 +34,16 @@ from openpyxl.styles import Font, Alignment, PatternFill
 
 # Imports para PDF
 from reportlab.lib.pagesizes import letter, A4
-from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle, Image
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib.units import inch
 from reportlab.lib import colors
+from reportlab.graphics.shapes import Drawing
+from reportlab.graphics.charts.legends import Legend
+from reportlab.lib.utils import ImageReader
 from datetime import datetime
 from openpyxl import Workbook
 from openpyxl.styles import Font, Alignment, PatternFill
-from reportlab.lib.pagesizes import letter, A4
-from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
-from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
-from reportlab.lib.units import inch
-from reportlab.lib import colors
 import tempfile
 import os
 
@@ -545,7 +559,10 @@ class DetalleVacanteViewSet(viewsets.ModelViewSet):
 
 
 
+from rest_framework.permissions import AllowAny
+
 class UsuarioRegistroView(APIView):
+    permission_classes = [AllowAny]
     def post(self, request):
         serializer = UsuarioRegistroSerializer(data=request.data)
         if serializer.is_valid():
@@ -1107,213 +1124,425 @@ class ReportesViewSet(viewsets.ViewSet):
         return response
     
     def _export_pdf(self, data, filename, title="Reporte de TurboEmpleo"):
-        """Exportar datos a PDF con diseño profesional"""
+        """Exportar datos a PDF con diseño profesional mejorado"""
+        import os
+        from django.conf import settings
+        
         response = HttpResponse(content_type='application/pdf')
         response['Content-Disposition'] = f'attachment; filename="{filename}_{timezone.now().strftime("%Y%m%d_%H%M")}.pdf"'
         
-        # Configuración de página con márgenes
+        # Configuración de página con márgenes optimizados
         doc = SimpleDocTemplate(
             response, 
             pagesize=A4,
-            rightMargin=40,
-            leftMargin=40,
-            topMargin=60,
-            bottomMargin=60
+            rightMargin=50,
+            leftMargin=50,
+            topMargin=80,
+            bottomMargin=80
         )
         elements = []
         styles = getSampleStyleSheet()
         
-        # Colores corporativos de TurboEmpleo
+        # Colores corporativos mejorados de TurboEmpleo
         turbo_purple = colors.Color(0.369, 0.090, 0.922)  # #5e17eb
         turbo_light_purple = colors.Color(0.839, 0.776, 0.976)  # #d6c6f9
         turbo_dark = colors.Color(0.298, 0.051, 0.800)  # #4c0dcd
+        turbo_accent = colors.Color(0.729, 0.329, 0.953)  # #ba54f3
+        turbo_gray = colors.Color(0.4, 0.4, 0.4)  # #666666
         
-        # === HEADER CON LOGO Y EMPRESA ===
-        header_data = [
-            ['', 'TURBOEMPLEO', ''],  # Espacio para logo, nombre, espacio
-        ]
+        # === LOGO TURBOEMPLEO (SVG como texto) ===
+        logo_svg = """
+        <svg width="60" height="60" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="50" cy="50" r="45" fill="#5e17eb" stroke="#4c0dcd" stroke-width="3"/>
+            <text x="50" y="35" font-family="Arial, sans-serif" font-size="14" font-weight="bold" 
+                  text-anchor="middle" fill="white">TURBO</text>
+            <text x="50" y="55" font-family="Arial, sans-serif" font-size="10" font-weight="bold" 
+                  text-anchor="middle" fill="white">EMPLEO</text>
+            <circle cx="50" cy="70" r="3" fill="white"/>
+            <circle cx="42" cy="70" r="2" fill="#d6c6f9"/>
+            <circle cx="58" cy="70" r="2" fill="#d6c6f9"/>
+        </svg>
+        """
         
-        header_table = Table(header_data, colWidths=[1.5*inch, 4*inch, 1.5*inch])
-        header_table.setStyle(TableStyle([
-            ('BACKGROUND', (0, 0), (-1, 0), turbo_purple),
-            ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
-            ('FONTNAME', (1, 0), (1, 0), 'Helvetica-Bold'),
-            ('FONTSIZE', (1, 0), (1, 0), 24),
-            ('ALIGN', (1, 0), (1, 0), 'CENTER'),
-            ('VALIGN', (0, 0), (-1, 0), 'MIDDLE'),
-            ('LEFTPADDING', (0, 0), (-1, 0), 20),
-            ('RIGHTPADDING', (0, 0), (-1, 0), 20),
-            ('TOPPADDING', (0, 0), (-1, 0), 15),
-            ('BOTTOMPADDING', (0, 0), (-1, 0), 15),
-        ]))
+        # === HEADER MEJORADO CON LOGO REAL ===
+        # Intentar cargar el logo
+        logo_path = os.path.join(settings.BASE_DIR, 'static', 'img', 'logo_turboempleo.png')
+        
+        if os.path.exists(logo_path):
+            # Header con logo
+            try:
+                logo = Image(logo_path, width=0.8*inch, height=0.8*inch)
+                
+                # Crear tabla para header con logo
+                header_content = [
+                    [logo, Paragraph('<b>TURBOEMPLEO</b><br/><font size="10">Sistema de Gestión de Empleo</font>', 
+                                   ParagraphStyle('HeaderText', 
+                                                parent=styles['Normal'],
+                                                fontName='Helvetica-Bold',
+                                                fontSize=20,
+                                                textColor=colors.white,
+                                                alignment=1)), '📊']
+                ]
+                
+                header_table = Table(header_content, colWidths=[1.2*inch, 4.6*inch, 1*inch])
+                header_table.setStyle(TableStyle([
+                    ('BACKGROUND', (0, 0), (-1, 0), turbo_purple),
+                    ('TEXTCOLOR', (2, 0), (2, 0), colors.white),
+                    ('FONTSIZE', (2, 0), (2, 0), 24),
+                    ('ALIGN', (0, 0), (0, 0), 'CENTER'),
+                    ('ALIGN', (1, 0), (1, 0), 'CENTER'),
+                    ('ALIGN', (2, 0), (2, 0), 'CENTER'),
+                    ('VALIGN', (0, 0), (-1, 0), 'MIDDLE'),
+                    ('LEFTPADDING', (0, 0), (-1, 0), 15),
+                    ('RIGHTPADDING', (0, 0), (-1, 0), 15),
+                    ('TOPPADDING', (0, 0), (-1, 0), 15),
+                    ('BOTTOMPADDING', (0, 0), (-1, 0), 15),
+                    ('GRID', (0, 0), (-1, 0), 0, colors.transparent),
+                ]))
+            except Exception as e:
+                # Fallback si hay error con el logo
+                header_data = [['🚀', 'TURBOEMPLEO', '📊']]
+                header_table = Table(header_data, colWidths=[1*inch, 5*inch, 1*inch])
+                header_table.setStyle(TableStyle([
+                    ('BACKGROUND', (0, 0), (-1, 0), turbo_purple),
+                    ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
+                    ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+                    ('FONTSIZE', (0, 0), (0, 0), 20),
+                    ('FONTSIZE', (1, 0), (1, 0), 28),
+                    ('FONTSIZE', (2, 0), (2, 0), 20),
+                    ('ALIGN', (0, 0), (-1, 0), 'CENTER'),
+                    ('VALIGN', (0, 0), (-1, 0), 'MIDDLE'),
+                    ('LEFTPADDING', (0, 0), (-1, 0), 15),
+                    ('RIGHTPADDING', (0, 0), (-1, 0), 15),
+                    ('TOPPADDING', (0, 0), (-1, 0), 20),
+                    ('BOTTOMPADDING', (0, 0), (-1, 0), 20),
+                ]))
+        else:
+            # Header sin logo (fallback)
+            header_data = [['🚀', 'TURBOEMPLEO', '📊']]
+            header_table = Table(header_data, colWidths=[1*inch, 5*inch, 1*inch])
+            header_table.setStyle(TableStyle([
+                ('BACKGROUND', (0, 0), (-1, 0), turbo_purple),
+                ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
+                ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+                ('FONTSIZE', (0, 0), (0, 0), 20),
+                ('FONTSIZE', (1, 0), (1, 0), 28),
+                ('FONTSIZE', (2, 0), (2, 0), 20),
+                ('ALIGN', (0, 0), (-1, 0), 'CENTER'),
+                ('VALIGN', (0, 0), (-1, 0), 'MIDDLE'),
+                ('LEFTPADDING', (0, 0), (-1, 0), 15),
+                ('RIGHTPADDING', (0, 0), (-1, 0), 15),
+                ('TOPPADDING', (0, 0), (-1, 0), 20),
+                ('BOTTOMPADDING', (0, 0), (-1, 0), 20),
+            ]))
         
         elements.append(header_table)
-        elements.append(Spacer(1, 20))
+        elements.append(Spacer(1, 25))
         
-        # === TÍTULO DEL REPORTE ===
+        # === TÍTULO DEL REPORTE MEJORADO ===
         title_style = ParagraphStyle(
             'TurboTitle',
             parent=styles['Heading1'],
             fontName='Helvetica-Bold',
-            fontSize=20,
-            spaceAfter=10,
-            spaceBefore=10,
+            fontSize=24,
+            spaceAfter=12,
+            spaceBefore=0,
             alignment=1,  # Centrado
-            textColor=turbo_dark
+            textColor=turbo_dark,
+            leftIndent=0,
+            rightIndent=0
         )
-        elements.append(Paragraph(title, title_style))
+        elements.append(Paragraph(f"📋 {title}", title_style))
         
-        # === INFORMACIÓN DEL REPORTE ===
+        # === LÍNEA DECORATIVA BAJO TÍTULO ===
+        title_line_data = [['']]
+        title_line_table = Table(title_line_data, colWidths=[6*inch])
+        title_line_table.setStyle(TableStyle([
+            ('BACKGROUND', (0, 0), (-1, 0), turbo_accent),
+            ('TOPPADDING', (0, 0), (-1, 0), 2),
+            ('BOTTOMPADDING', (0, 0), (-1, 0), 2),
+        ]))
+        elements.append(title_line_table)
+        elements.append(Spacer(1, 15))
+        
+        # === INFORMACIÓN DEL REPORTE MEJORADA ===
         info_style = ParagraphStyle(
             'TurboInfo',
             parent=styles['Normal'],
             fontName='Helvetica',
-            fontSize=11,
+            fontSize=12,
             alignment=1,  # Centrado
-            textColor=colors.grey,
-            spaceAfter=20
+            textColor=turbo_gray,
+            spaceAfter=25,
+            leading=16
         )
         
-        fecha_generacion = timezone.now().strftime('%d de %B de %Y a las %H:%M')
-        info_text = f"📅 Generado el {fecha_generacion}<br/>🖥️ Sistema de Reportes TurboEmpleo"
+        # Fecha en español
+        meses = {
+            1: 'enero', 2: 'febrero', 3: 'marzo', 4: 'abril',
+            5: 'mayo', 6: 'junio', 7: 'julio', 8: 'agosto',
+            9: 'septiembre', 10: 'octubre', 11: 'noviembre', 12: 'diciembre'
+        }
+        
+        ahora = timezone.now()
+        mes_nombre = meses[ahora.month]
+        fecha_generacion = f"{ahora.day} de {mes_nombre} de {ahora.year} a las {ahora.strftime('%H:%M')}"
+        
+        info_text = f"""
+        <b>📅 Generado el:</b> {fecha_generacion}<br/>
+        <b>🖥️ Sistema:</b> Reportes TurboEmpleo<br/>
+        <b>👤 Usuario:</b> Administrador del Sistema
+        """
         elements.append(Paragraph(info_text, info_style))
         
-        # === LÍNEA DECORATIVA ===
-        line_data = [[''] * 5]
+        # === LÍNEA DECORATIVA MEJORADA ===
+        line_data = [['', '', '', '', '']]
         line_table = Table(line_data, colWidths=[1.4*inch]*5)
         line_table.setStyle(TableStyle([
-            ('BACKGROUND', (0, 0), (-1, 0), turbo_light_purple),
-            ('TOPPADDING', (0, 0), (-1, 0), 3),
-            ('BOTTOMPADDING', (0, 0), (-1, 0), 3),
+            ('BACKGROUND', (0, 0), (1, 0), turbo_purple),
+            ('BACKGROUND', (2, 0), (2, 0), turbo_accent),
+            ('BACKGROUND', (3, 0), (-1, 0), turbo_purple),
+            ('TOPPADDING', (0, 0), (-1, 0), 4),
+            ('BOTTOMPADDING', (0, 0), (-1, 0), 4),
         ]))
         elements.append(line_table)
-        elements.append(Spacer(1, 25))
+        elements.append(Spacer(1, 30))
         
         if not data:
-            # === SIN DATOS ===
+            # === SIN DATOS MEJORADO ===
             no_data_style = ParagraphStyle(
                 'NoData',
                 parent=styles['Normal'],
+                fontName='Helvetica-Bold',
+                fontSize=16,
+                alignment=1,
+                textColor=turbo_gray,
+                spaceAfter=30,
+                spaceBefore=30,
+                leading=20
+            )
+            elements.append(Paragraph("📋 No hay datos disponibles para mostrar en este reporte", no_data_style))
+            
+            # Sugerencia
+            suggestion_style = ParagraphStyle(
+                'Suggestion',
+                parent=styles['Normal'],
                 fontName='Helvetica-Oblique',
-                fontSize=14,
+                fontSize=12,
                 alignment=1,
                 textColor=colors.grey,
-                spaceAfter=20,
-                spaceBefore=20
+                spaceAfter=20
             )
-            elements.append(Paragraph("📋 No hay datos para mostrar en este reporte", no_data_style))
+            elements.append(Paragraph("💡 Verifique los filtros aplicados o intente generar el reporte en otro rango de fechas.", suggestion_style))
         else:
-            # === RESUMEN EJECUTIVO ===
+            # === RESUMEN EJECUTIVO MEJORADO ===
             summary_style = ParagraphStyle(
                 'Summary',
                 parent=styles['Normal'],
                 fontName='Helvetica-Bold',
-                fontSize=12,
+                fontSize=14,
                 alignment=0,
                 textColor=turbo_dark,
-                spaceAfter=15
+                spaceAfter=20,
+                leftIndent=10,
+                rightIndent=10,
+                topPadding=10,
+                bottomPadding=10,
+                backColor=turbo_light_purple
             )
             
             total_registros = len(data)
-            summary_text = f"📊 <b>Resumen:</b> Este reporte contiene {total_registros} registro{'s' if total_registros != 1 else ''}"
+            summary_text = f"""
+            <b>📊 RESUMEN EJECUTIVO</b><br/><br/>
+            • Total de registros: <b>{total_registros}</b><br/>
+            • Fecha del reporte: <b>{fecha_generacion}</b><br/>
+            • Estado: <b>Datos actualizados ✅</b>
+            """
             elements.append(Paragraph(summary_text, summary_style))
+            elements.append(Spacer(1, 20))
             
-            # === TABLA DE DATOS ===
-            headers = [header.replace('_', ' ').title() for header in data[0].keys()]
+            # === TABLA DE DATOS MEJORADA ===
+            headers = []
+            for header in data[0].keys():
+                # Formatear nombres de columnas mejor
+                formatted_header = header.replace('_', ' ').title()
+                if 'Id' in formatted_header:
+                    formatted_header = formatted_header.replace('Id', 'ID')
+                elif 'Fecha' in formatted_header:
+                    formatted_header = f"📅 {formatted_header}"
+                elif 'Estado' in formatted_header:
+                    formatted_header = f"🔄 {formatted_header}"
+                elif 'Empresa' in formatted_header:
+                    formatted_header = f"🏢 {formatted_header}"
+                elif 'Aspirante' in formatted_header:
+                    formatted_header = f"👤 {formatted_header}"
+                elif 'Vacante' in formatted_header:
+                    formatted_header = f"💼 {formatted_header}"
+                elif 'Turbo' in formatted_header:
+                    formatted_header = f"⚡ {formatted_header}"
+                headers.append(formatted_header)
+            
             table_data = [headers]
             
-            # Limitar a 50 registros para evitar PDFs muy largos
-            limited_data = data[:50]
-            for row in limited_data:
+            # Limitar a 40 registros para mejor legibilidad
+            limited_data = data[:40]
+            for i, row in enumerate(limited_data):
                 formatted_row = []
-                for value in row.values():
+                for j, value in enumerate(row.values()):
                     if isinstance(value, bool):
-                        formatted_row.append('✓ Sí' if value else '✗ No')
+                        formatted_row.append('✅ Sí' if value else '❌ No')
                     elif isinstance(value, str) and '2025' in str(value):
                         try:
-                            # Formatear fechas
+                            # Formatear fechas mejor
                             from datetime import datetime
-                            dt = datetime.fromisoformat(value.replace('Z', '+00:00'))
-                            formatted_row.append(dt.strftime('%d/%m/%Y %H:%M'))
+                            if 'T' in value:
+                                dt = datetime.fromisoformat(value.replace('Z', '+00:00'))
+                                formatted_row.append(dt.strftime('%d/%m/%Y\n%H:%M'))
+                            else:
+                                formatted_row.append(str(value))
                         except:
                             formatted_row.append(str(value))
+                    elif isinstance(value, (int, float)) and value != 0:
+                        formatted_row.append(f"{value:,}")
+                    elif value in ['Pendiente', 'En Revisión', 'Entrevista Programada']:
+                        formatted_row.append(f"⏳ {value}")
+                    elif value in ['Aprobado', 'Contratado']:
+                        formatted_row.append(f"✅ {value}")
+                    elif value in ['Rechazado', 'Cancelado']:
+                        formatted_row.append(f"❌ {value}")
                     else:
-                        formatted_row.append(str(value) if value is not None else '-')
+                        formatted_row.append(str(value) if value is not None else '—')
                 table_data.append(formatted_row)
             
-            # Calcular anchos de columna dinámicamente
+            # Calcular anchos de columna más inteligente
             num_cols = len(headers)
+            page_width = 7  # inches disponibles
             if num_cols <= 3:
-                col_widths = [2.3*inch] * num_cols
+                col_widths = [page_width/num_cols*inch] * num_cols
             elif num_cols <= 5:
                 col_widths = [1.4*inch] * num_cols
             elif num_cols <= 7:
                 col_widths = [1*inch] * num_cols
             else:
-                col_widths = [0.8*inch] * num_cols
+                col_widths = [0.85*inch] * num_cols
             
             table = Table(table_data, colWidths=col_widths, repeatRows=1)
             
-            # === ESTILO DE TABLA PROFESIONAL ===
+            # === ESTILO DE TABLA PROFESIONAL MEJORADO ===
             table.setStyle(TableStyle([
-                # Header
+                # Header mejorado
                 ('BACKGROUND', (0, 0), (-1, 0), turbo_purple),
                 ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
                 ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
-                ('FONTSIZE', (0, 0), (-1, 0), 10),
+                ('FONTSIZE', (0, 0), (-1, 0), 9),
                 ('ALIGN', (0, 0), (-1, 0), 'CENTER'),
                 ('VALIGN', (0, 0), (-1, 0), 'MIDDLE'),
-                ('TOPPADDING', (0, 0), (-1, 0), 10),
-                ('BOTTOMPADDING', (0, 0), (-1, 0), 10),
+                ('TOPPADDING', (0, 0), (-1, 0), 12),
+                ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
                 
-                # Datos
+                # Datos con mejor espaciado
                 ('FONTNAME', (0, 1), (-1, -1), 'Helvetica'),
-                ('FONTSIZE', (0, 1), (-1, -1), 9),
+                ('FONTSIZE', (0, 1), (-1, -1), 8),
                 ('ALIGN', (0, 1), (-1, -1), 'CENTER'),
                 ('VALIGN', (0, 1), (-1, -1), 'MIDDLE'),
-                ('TOPPADDING', (0, 1), (-1, -1), 6),
-                ('BOTTOMPADDING', (0, 1), (-1, -1), 6),
-                ('LEFTPADDING', (0, 0), (-1, -1), 5),
-                ('RIGHTPADDING', (0, 0), (-1, -1), 5),
+                ('TOPPADDING', (0, 1), (-1, -1), 8),
+                ('BOTTOMPADDING', (0, 1), (-1, -1), 8),
+                ('LEFTPADDING', (0, 0), (-1, -1), 6),
+                ('RIGHTPADDING', (0, 0), (-1, -1), 6),
                 
-                # Bordes y alternancia de colores
-                ('GRID', (0, 0), (-1, -1), 0.5, colors.grey),
+                # Bordes y colores mejorados
+                ('GRID', (0, 0), (-1, -1), 0.5, turbo_gray),
                 ('ROWBACKGROUNDS', (0, 1), (-1, -1), [colors.white, turbo_light_purple]),
                 
-                # Línea gruesa bajo header
+                # Líneas decorativas
                 ('LINEBELOW', (0, 0), (-1, 0), 2, turbo_dark),
+                ('LINEAFTER', (0, 0), (-1, -1), 0.5, colors.lightgrey),
+                
+                # Resaltar filas específicas
+                ('WORDWRAP', (0, 0), (-1, -1), True),
             ]))
             
             elements.append(table)
             
-            # === NOTA SI HAY MÁS DATOS ===
-            if total_registros > 50:
+            # === NOTA MEJORADA SI HAY MÁS DATOS ===
+            if total_registros > 40:
+                elements.append(Spacer(1, 15))
                 note_style = ParagraphStyle(
                     'Note',
                     parent=styles['Normal'],
                     fontName='Helvetica-Oblique',
-                    fontSize=10,
+                    fontSize=11,
                     alignment=1,
-                    textColor=colors.grey,
+                    textColor=turbo_dark,
                     spaceAfter=10,
-                    spaceBefore=15
+                    spaceBefore=5,
+                    backColor=colors.lightyellow,
+                    leftIndent=10,
+                    rightIndent=10,
+                    topPadding=8,
+                    bottomPadding=8
                 )
-                note_text = f"📝 <i>Nota: Se muestran los primeros 50 de {total_registros} registros. Para ver todos los datos, use la exportación en Excel.</i>"
+                note_text = f"""
+                📝 <b>NOTA IMPORTANTE:</b> Se muestran los primeros 40 de <b>{total_registros}</b> registros totales.<br/><br/>
+                💡 Para obtener el reporte completo, utilice la exportación en formato Excel.
+                """
                 elements.append(Paragraph(note_text, note_style))
         
-        # === FOOTER ===
-        elements.append(Spacer(1, 30))
-        footer_data = [['TurboEmpleo - Sistema de Gestión de Empleo | www.turboempleo.com']]
-        footer_table = Table(footer_data, colWidths=[7*inch])
+        # === FOOTER MEJORADO ===
+        elements.append(Spacer(1, 40))
+        
+        # Línea decorativa antes del footer
+        footer_line_data = [['']]
+        footer_line_table = Table(footer_line_data, colWidths=[6.5*inch])
+        footer_line_table.setStyle(TableStyle([
+            ('BACKGROUND', (0, 0), (-1, 0), turbo_accent),
+            ('TOPPADDING', (0, 0), (-1, 0), 2),
+            ('BOTTOMPADDING', (0, 0), (-1, 0), 2),
+        ]))
+        elements.append(footer_line_table)
+        elements.append(Spacer(1, 10))
+        
+        # Footer con información de contacto
+        footer_data = [
+            ['🚀 TurboEmpleo - Sistema de Gestión de Empleo'],
+            ['🌐 www.turboempleo.com | 📧 soporte@turboempleo.com | 📞 +57 (1) 234-5678'],
+            ['💼 Conectando talento con oportunidades | 🎯 Su plataforma de empleo confiable']
+        ]
+        
+        footer_table = Table(footer_data, colWidths=[6.5*inch])
         footer_table.setStyle(TableStyle([
+            # Primera fila - Nombre empresa
             ('BACKGROUND', (0, 0), (-1, 0), turbo_light_purple),
             ('TEXTCOLOR', (0, 0), (-1, 0), turbo_dark),
-            ('FONTNAME', (0, 0), (-1, 0), 'Helvetica'),
-            ('FONTSIZE', (0, 0), (-1, 0), 9),
+            ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+            ('FONTSIZE', (0, 0), (-1, 0), 12),
             ('ALIGN', (0, 0), (-1, 0), 'CENTER'),
             ('VALIGN', (0, 0), (-1, 0), 'MIDDLE'),
-            ('TOPPADDING', (0, 0), (-1, 0), 8),
-            ('BOTTOMPADDING', (0, 0), (-1, 0), 8),
+            ('TOPPADDING', (0, 0), (-1, 0), 10),
+            ('BOTTOMPADDING', (0, 0), (-1, 0), 10),
+            
+            # Segunda fila - Contacto
+            ('BACKGROUND', (0, 1), (-1, 1), colors.white),
+            ('TEXTCOLOR', (0, 1), (-1, 1), turbo_gray),
+            ('FONTNAME', (0, 1), (-1, 1), 'Helvetica'),
+            ('FONTSIZE', (0, 1), (-1, 1), 9),
+            ('ALIGN', (0, 1), (-1, 1), 'CENTER'),
+            ('VALIGN', (0, 1), (-1, 1), 'MIDDLE'),
+            ('TOPPADDING', (0, 1), (-1, 1), 8),
+            ('BOTTOMPADDING', (0, 1), (-1, 1), 8),
+            
+            # Tercera fila - Slogan
+            ('BACKGROUND', (0, 2), (-1, 2), turbo_purple),
+            ('TEXTCOLOR', (0, 2), (-1, 2), colors.white),
+            ('FONTNAME', (0, 2), (-1, 2), 'Helvetica-Oblique'),
+            ('FONTSIZE', (0, 2), (-1, 2), 10),
+            ('ALIGN', (0, 2), (-1, 2), 'CENTER'),
+            ('VALIGN', (0, 2), (-1, 2), 'MIDDLE'),
+            ('TOPPADDING', (0, 2), (-1, 2), 8),
+            ('BOTTOMPADDING', (0, 2), (-1, 2), 8),
+            
+            # Bordes
+            ('GRID', (0, 0), (-1, -1), 1, turbo_dark),
         ]))
         elements.append(footer_table)
         
