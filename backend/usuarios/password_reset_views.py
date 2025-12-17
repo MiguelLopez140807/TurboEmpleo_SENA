@@ -1,4 +1,5 @@
 from rest_framework.views import APIView
+from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework import status
 from django.contrib.auth.tokens import default_token_generator
@@ -9,6 +10,7 @@ from django.conf import settings
 from .models import Usuarios
 
 class PasswordResetRequestView(APIView):
+    permission_classes = [AllowAny]
     def post(self, request):
         email = request.data.get('email')
         if not email:
@@ -31,6 +33,7 @@ class PasswordResetRequestView(APIView):
         return Response({'message': 'Si el correo está registrado, recibirás un enlace para restablecer tu contraseña.'}, status=status.HTTP_200_OK)
 
 class PasswordResetConfirmView(APIView):
+    permission_classes = [AllowAny]
     def post(self, request, uidb64, token):
         password = request.data.get('password')
         if not password:

@@ -172,6 +172,17 @@ function Navbar() {
             {mainLinks}
             <div className="flex items-center space-x-4">
               {isAuth && <NotificationBell />}
+              {/* Mostrar nombre y rol del usuario autenticado */}
+              {isAuth && user && (
+                <div className="flex flex-col items-end mr-2 text-right">
+                  <span className="text-[#5e17eb] font-semibold">
+                    {user.asp_nombre || user.em_nombre || user.first_name || user.username || 'Usuario'}
+                  </span>
+                  <span className="text-xs text-gray-500">
+                    {isEmpresa(user) ? 'Empresa' : 'Aspirante'}
+                  </span>
+                </div>
+              )}
               {isAuth ? userLinks : guestLinks}
             </div>
           </div>
@@ -192,6 +203,16 @@ function Navbar() {
             <div className="flex flex-col space-y-4">
               {mainLinks}
               <div className="pt-4 border-t border-gray-200">
+                {isAuth && user && (
+                  <div className="flex flex-col items-start mb-2 ml-2">
+                    <span className="text-[#5e17eb] font-semibold">
+                      {user.asp_nombre || user.em_nombre || user.first_name || user.username || 'Usuario'}
+                    </span>
+                    <span className="text-xs text-gray-500">
+                      {isEmpresa(user) ? 'Empresa' : 'Aspirante'}
+                    </span>
+                  </div>
+                )}
                 {isAuth ? (
                   <>
                     <Link

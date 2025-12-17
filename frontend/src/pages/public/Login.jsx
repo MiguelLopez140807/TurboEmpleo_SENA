@@ -104,8 +104,20 @@ function Login() {
           }
         }
         
-        // Si ambos métodos fallan, mostrar el error
-        setError(data.detail || data.message || "Credenciales incorrectas");
+        // Si ambos métodos fallan, mostrar el error personalizado del backend (soporta string, array u objeto)
+        let mensaje = "Credenciales incorrectas";
+        if (data.detail) {
+          if (typeof data.detail === 'string') {
+            mensaje = data.detail;
+          } else if (Array.isArray(data.detail)) {
+            mensaje = data.detail.join(' ');
+          } else if (typeof data.detail === 'object') {
+            mensaje = Object.values(data.detail).flat().join(' ');
+          }
+        } else if (data.message) {
+          mensaje = data.message;
+        }
+        setError(mensaje);
       }
     } catch (err) {
       console.error("Error en login:", err);

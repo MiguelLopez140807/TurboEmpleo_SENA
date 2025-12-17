@@ -12,8 +12,8 @@ class UsuariosSerializer(serializers.ModelSerializer):
     class Meta:
         model = Usuarios
         fields = ['id', 'user_nombre', 'email', 'is_active', 'is_staff', 
-                 'date_joined', 'last_login', 'failed_login_attempts',
-                 'fecha_registro_formato', 'ultimo_acceso_formato']
+                'date_joined', 'last_login', 'failed_login_attempts',
+                'fecha_registro_formato', 'ultimo_acceso_formato']
         extra_kwargs = {
             'password': {'write_only': True}
         }
@@ -254,25 +254,35 @@ class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
 
         # Verificar si está bloqueado
         if user.login_blocked_until and user.login_blocked_until > timezone.now():
-            raise serializers.ValidationError({'detail': f'Usuario bloqueado temporalmente. Intenta de nuevo después de {user.login_blocked_until.strftime("%H:%M:%S")}'})
+            tiempo_restante = (user.login_blocked_until - timezone.now()).total_seconds()
+            minutos = int(tiempo_restante // 60)
+            segundos = int(tiempo_restante % 60)
+            raise serializers.ValidationError({
+                'detail': f'Demasiados intentos fallidos. Debes esperar {minutos} minutos y {segundos} segundos para volver a intentar.'
+            })
 
-        # Validar credenciales
-        try:
-            data = super().validate(attrs)
-        except serializers.ValidationError:
+        # Validar contraseña manualmente para controlar el mensaje de bloqueo
+        if not user.check_password(password):
             user.failed_login_attempts += 1
             user.last_failed_login = timezone.now()
             if user.failed_login_attempts >= 5:
                 from datetime import timedelta
-                user.login_blocked_until = timezone.now() + timedelta(minutes=5)
+                user.login_blocked_until = timezone.now() + timedelta(minutes=2)
                 user.failed_login_attempts = 0
+                user.save()
+                raise serializers.ValidationError({
+                    'detail': 'Demasiados intentos fallidos. Debes esperar 2 minutos para volver a intentar.'
+                })
             user.save()
-            raise
+            raise serializers.ValidationError({'detail': 'Credenciales incorrectas'})
 
         # Si login exitoso, resetear contador
         user.failed_login_attempts = 0
         user.login_blocked_until = None
         user.save()
+
+        # Continuar con la validación JWT estándar
+        data = super().validate(attrs)
 
         # Buscar datos de aspirante o empresa
         user_data = None

@@ -31,6 +31,7 @@ class SecurityMiddleware(MiddlewareMixin):
         '/api/token/',
         '/api/usuarios/contacto/',
         '/api/usuarios/password-reset/',
+        '/api/usuarios/password-reset-confirm/',
         '/api/usuarios/activar-cuenta/',
         '/media/',
         '/static/',
